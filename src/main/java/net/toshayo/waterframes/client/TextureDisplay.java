@@ -296,6 +296,7 @@ public class TextureDisplay {
                         cameraPos = te.xCoord + " " + te.yCoord + " " + te.zCoord + " " + tile.getWorldObj().provider.dimensionId;
                         if (!SecurityCraft.instance.hasViewForCoords(cameraPos)) {
                             // TODO: handle my version of SecurityCraft camera
+                            // TODO: add resolution customization and aspect ratio based on display width/height
                             LookingGlassAPIProvider.createLookingGlassView(
                                     te.getWorldObj(), te.getWorldObj().provider.dimensionId,
                                     te.xCoord, te.yCoord, te.zCoord,

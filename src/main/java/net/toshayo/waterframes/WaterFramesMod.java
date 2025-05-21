@@ -18,8 +18,7 @@ import java.net.URI;
         modid = WaterFramesMod.MOD_ID,
         name = WaterFramesMod.NAME,
         version = Tags.VERSION,
-        certificateFingerprint = "ee4beef430d574ba7d8c096a4f7f9c6c755bd30f",
-        dependencies = "required-after:OpenComputers"
+        certificateFingerprint = "ee4beef430d574ba7d8c096a4f7f9c6c755bd30f"
 )
 public class WaterFramesMod {
     public static final String MOD_ID = "waterframes";

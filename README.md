@@ -6,13 +6,11 @@ A rewrite for forge 1.7.10 of a nice mod WATERFrAMES (source at: [https://github
 
 - [WATERMeDIA](https://www.curseforge.com/minecraft/mc-mods/watermedia): Multimedia Support
 
-    Take latest version, and it does not matter that the mod is for 1.21.1
+    Take latest version (recommended 2.1.24), and it does not matter that the mod is for 1.21.+
 - JNA
 
-    You will need jna and jna-platform libraries (5.10.0 for example). If you have a recent minecraft installation
-    you can find these in some libraries' folder. (These might probably be included in mod jar in newer version of the mod)
-    
-    It should be installed in ``mods`` folder like any other mod (though the game will probably warn you that it's not a mod)
+   This dependency is now (starting with 1.1.7 version) included in the mod.
+   Please remove existing library (jna and jna-platform) from ``mods/`` folder before launch.
 
 ### Credits
 
@@ -25,6 +23,8 @@ A rewrite for forge 1.7.10 of a nice mod WATERFrAMES (source at: [https://github
 
 - The mod uses WATERMeDIA that was developed for 1.21.1. That means some features might be broken.
 - Redstone control is not supported yet.
+- Displays can show camera view from Security Craft if LookingGlass is installed. To use this feature
+  set ``camera://x,y,z`` where x, y and z are camera coordinates.
 - Other features might not be ported from WATERFrAMES.
 
 If you are experiencing crashes, feel free to open issues [here](https://github.com/Toshayo/WaterFrames/issues) I'll fix when I have time.

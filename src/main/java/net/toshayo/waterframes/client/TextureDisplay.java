@@ -1,6 +1,7 @@
 package net.toshayo.waterframes.client;
 
 import com.xcompwiz.lookingglass.api.view.IWorldView;
+import cpw.mods.fml.common.Loader;
 import net.geforcemods.securitycraft.SecurityCraft;
 import net.geforcemods.securitycraft.compat.lookingglass.LookingGlassAPIProvider;
 import net.geforcemods.securitycraft.tileentity.TileEntitySecurityCamera;
@@ -148,15 +149,8 @@ public class TextureDisplay {
                     if(te != null && te.hasWorldObj() && te instanceof TileEntitySecurityCamera) {
                         // Use same format as SecurityCraft
                         cameraPos = te.xCoord + " " + te.yCoord + " " + te.zCoord + " " + tile.getWorldObj().provider.dimensionId;
-                        if (SecurityCraft.instance.hasViewForCoords(cameraPos)) {
-                            IWorldView view = SecurityCraft.instance.getViewFromCoords(cameraPos).getView();
-                            if (view != null) {
-                                if (view.isReady() && view.getTexture() != 0) {
-                                    view.markDirty();
-                                    return view.getTexture();
-                                }
-                                view.markDirty();
-                            }
+                        if (SecurityCraft.instance.hasViewForCoords(cameraPos) && Loader.isModLoaded("LookingGlass")) {
+                            return getCameraTexture(cameraPos);
                         }
                     }
                 } catch (NumberFormatException ignored) {}
@@ -164,6 +158,18 @@ public class TextureDisplay {
             default:
                 throw new IllegalArgumentException();
         }
+    }
+
+    private int getCameraTexture(String cameraPos) {
+        IWorldView view = SecurityCraft.instance.getViewFromCoords(cameraPos).getView();
+        if (view != null) {
+            if (view.isReady() && view.getTexture() != 0) {
+                view.markDirty();
+                return view.getTexture();
+            }
+            view.markDirty();
+        }
+        return -1;
     }
 
     public void preRender() {
@@ -294,7 +300,7 @@ public class TextureDisplay {
                     if(te != null && te.hasWorldObj() && te instanceof TileEntitySecurityCamera) {
                         // Use same format as SecurityCraft
                         cameraPos = te.xCoord + " " + te.yCoord + " " + te.zCoord + " " + tile.getWorldObj().provider.dimensionId;
-                        if (!SecurityCraft.instance.hasViewForCoords(cameraPos)) {
+                        if (!SecurityCraft.instance.hasViewForCoords(cameraPos) && Loader.isModLoaded("LookingGlass")) {
                             // TODO: handle my version of SecurityCraft camera
                             // TODO: add resolution customization and aspect ratio based on display width/height
                             LookingGlassAPIProvider.createLookingGlassView(

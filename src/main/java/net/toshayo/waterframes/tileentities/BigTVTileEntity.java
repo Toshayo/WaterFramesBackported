@@ -7,9 +7,4 @@ public class BigTVTileEntity extends DisplayTileEntity {
     public BigTVTileEntity() {
         super(new DisplayData(), DisplayCaps.BIG_TV);
     }
-
-    /*@Override
-    public String getComponentName() {
-        return "wf_big_tv";
-    }*/
 }

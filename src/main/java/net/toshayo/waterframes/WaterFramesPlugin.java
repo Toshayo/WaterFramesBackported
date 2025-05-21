@@ -8,7 +8,7 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
 @IFMLLoadingPlugin.TransformerExclusions({
-        "net.toshayo.waterframes"
+        "net.toshayo.waterframes.transformers"
 })
 public class WaterFramesPlugin implements IFMLLoadingPlugin {
     public static final Logger LOGGER = LogManager.getLogger("WaterFramesBackportedPlugin");

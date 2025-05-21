@@ -16,9 +16,8 @@ public class LibrariesDowngradingTransformer implements IClassTransformer {
         }
         if (transformedName.equals("org.watermedia.api.render.RenderAPI")) {
             return visitClass(basicClass, classWriter -> new MemoryAllocVisitor(transformedName, classWriter));
-        } else if (transformedName.startsWith("org.watermedia") ||
-                transformedName.startsWith("org.watermedia.videolan4j.discovery")) {
-            byte[] resultingClass = visitClass(basicClass, classWriter -> new Log4JDowngradingVisitor(transformedName, classWriter));
+        } else if (transformedName.startsWith("org.watermedia")) {
+            byte[] resultingClass = visitClass(basicClass, classWriter -> new Log4JDowngradingVisitor(transformedName, classWriter), false);
             if (transformedName.equals("org.watermedia.api.image.ImageFetch")) {
                 resultingClass = visitClass(resultingClass, classWriter -> new ImageFetchCachingDisablingVisitor(transformedName, classWriter));
                 resultingClass = visitClass(resultingClass, classWriter -> new ImageFetchMimeGuessingVisitor(transformedName, classWriter));
@@ -29,10 +28,14 @@ public class LibrariesDowngradingTransformer implements IClassTransformer {
     }
 
     private byte[] visitClass(byte[] basicClass, Function<ClassWriter, ClassVisitor> visitor) {
-        ClassReader classReader = new ClassReader(basicClass);
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        return visitClass(basicClass, visitor, true);
+    }
 
-        classReader.accept(visitor.apply(classWriter), ClassReader.EXPAND_FRAMES);
+    private byte[] visitClass(byte[] basicClass, Function<ClassWriter, ClassVisitor> visitor, boolean handleFrames) {
+        ClassReader classReader = new ClassReader(basicClass);
+        ClassWriter classWriter = new ClassWriter(handleFrames ? ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES : 0);
+
+        classReader.accept(visitor.apply(classWriter), handleFrames ? ClassReader.EXPAND_FRAMES : 0);
 
         return classWriter.toByteArray();
     }

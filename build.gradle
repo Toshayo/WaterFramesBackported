@@ -1,96 +1,26 @@
-buildscript {
-	repositories {
-		maven { url = 'https://maven.minecraftforge.net/' }
-		maven { url = 'https://plugins.gradle.org/m2' }
-		mavenCentral()
-		gradlePluginPortal()
-	}
-	dependencies {
-		classpath ('com.anatawa12.forge:ForgeGradle:1.2-1.1.1') {
-			changing = true
-		}
-
-		//classpath 'com.github.johnrengelman:shadow:8.1.1'
-	}
-}
-
-//apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'forge'
-
-version = mod_version
-group = modGroup
-archivesBaseName = modArchivesBaseName
-
-compileJava.options.encoding = 'UTF-8'
-java.sourceCompatibility = java.targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-
-minecraft {
-	version = "1.7.10-10.13.4.1614-1.7.10"
-
-	replace "@@VERSION@@", project.version
-	if(project.gradle.startParameter.taskNames.size() > 0 && project.gradle.startParameter.taskNames.first().startsWith("run"))
-		replace "@@ENVIRONMENT@@", "deobf"
-	else
-		replace "@@ENVIRONMENT@@", "obf"
-
-	runDir = "run"
+plugins {
+	id("com.gtnewhorizons.gtnhconvention")
 }
 
 repositories {
 	maven {
-		name = 'ModMaven'
-		url = 'https://modmaven.dev'
-	}
-	maven {
-		url = "https://api.modrinth.com/maven"
+		url = "https://maven.cil.li/"
 	}
 	flatDir {
 		dir 'libs/'
 	}
 }
 
-configurations {
-	shade
-}
-
 dependencies {
-	//compileOnly "li.cil.oc:OpenComputers:MC1.7.10-1.7.+:api"
-	implementation "li.cil.oc:OpenComputers:MC1.7.10-1.5.+:api"
-	//implementation "li.cil.oc:OpenComputers:MC1.7.10-1.7.+:dev"
+	compileOnly "li.cil.oc:OpenComputers:MC1.7.10-1.7.+:api"
+	implementation "li.cil.oc:OpenComputers:MC1.7.10-1.7.+:dev"
 
-	implementation "maven.modrinth:watermedia:${watermedia_version}"
-	implementation "net.java.dev.jna:jna:5.10.0"
-	implementation "net.java.dev.jna:jna-platform:5.10.0"
+	api "maven.modrinth:watermedia:${watermedia_version}"
+	shadowImplementation "net.java.dev.jna:jna:5.10.0"
+	shadowImplementation "net.java.dev.jna:jna-platform:5.10.0"
 
-}
-
-/*shadowJar {
-	configurations = [project.configurations.shade]
-	exclude '*.html'
-	archiveClassifier.set('') // Replace the default JAR
-}
-
-reobf {
-	dependsOn shadowJar // Reobfuscate the shadowed JAR
-}*/
-
-processResources {
-	inputs.property "version", mod_version
-	inputs.property "credits", credits
-
-	// replace stuff in mcmod.info, nothing else
-	from(sourceSets.main.resources.srcDirs) {
-		include 'mcmod.info'
-		
-		// replace version and mcversion
-		expand (
-				mod_id: mod_id,
-				version: mod_version,
-				credits: credits
-		)
-	}
-
-	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+	compileOnly "blank:lookingglass"
+	compileOnly "blank:securitycraft"
 }
 
 jar {
@@ -121,7 +51,7 @@ build {
 						"-keystore", jks_file,
 						"-storepass", passwd,
 						"-tsa", "http://timestamp.digicert.com",
-						jar.archiveFile.get(), TOSHAYO_APP_ALIAS
+						reobfJar.archiveFile.get(), TOSHAYO_APP_ALIAS
 				].execute()
 				exec_line.waitFor()
 				if(exec_line.exitValue() != 0) {

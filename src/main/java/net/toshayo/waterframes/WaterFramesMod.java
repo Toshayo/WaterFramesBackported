@@ -5,6 +5,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraftforge.classloading.FMLForgePlugin;
 import net.toshayo.waterframes.proxy.CommonProxy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,14 +17,13 @@ import java.net.URI;
 @Mod(
         modid = WaterFramesMod.MOD_ID,
         name = WaterFramesMod.NAME,
-        version = WaterFramesMod.VERSION,
-        certificateFingerprint = "ee4beef430d574ba7d8c096a4f7f9c6c755bd30f"
+        version = Tags.VERSION,
+        certificateFingerprint = "ee4beef430d574ba7d8c096a4f7f9c6c755bd30f",
+        dependencies = "required-after:OpenComputers"
 )
 public class WaterFramesMod {
     public static final String MOD_ID = "waterframes";
     public static final String NAME = "WaterFramesBackported";
-    public static final String VERSION = "@@VERSION@@";
-    private static final String ENVIRONMENT_NAME = "@@ENVIRONMENT@@";
 
     public static final Logger LOGGER = LogManager.getLogger(NAME);
 
@@ -87,7 +87,6 @@ public class WaterFramesMod {
     }
 
     public static boolean isObfEnv() {
-        //noinspection ConstantValue,MismatchedStringCase
-        return ENVIRONMENT_NAME.equals("obf");
+        return !FMLForgePlugin.RUNTIME_DEOBF;
     }
 }

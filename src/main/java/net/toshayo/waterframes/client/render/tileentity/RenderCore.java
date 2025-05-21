@@ -1,7 +1,6 @@
 package net.toshayo.waterframes.client.render.tileentity;
 
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
 import toshayopack.team.creative.creativecore.common.util.math.AlignedBox;
 import toshayopack.team.creative.creativecore.common.util.math.BoxCorner;
@@ -37,9 +36,9 @@ public class RenderCore {
     }
 
     private static void vertex(AlignedBox box, BoxFace face, BoxCorner corner, boolean flipX, boolean flipY, int a, int r, int g, int b) {
-        Vec3 normal = face.facing.normal;
+        /*Vec3 normal = face.facing.normal;
         tesselator.setNormal((float) normal.xCoord, (float) normal.yCoord, (float) normal.zCoord);
-        tesselator.setColorRGBA(r, g, b, a);
+        tesselator.setColorRGBA(r, g, b, a);*/
         tesselator.addVertexWithUV(
                 box.get(corner.x),
                 box.get(corner.y),

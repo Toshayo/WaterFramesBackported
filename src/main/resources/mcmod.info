@@ -1,10 +1,11 @@
 [
 	{
-		"modid": "${mod_id}",
+		"modid": "${modId}",
 		"name": "WaterFramesBackported",
 		"description": "TV in Minecraft! Backported WATERFrAMES from newer versions to 1.7.10",
-		"version":"${version}",
-		"mcversion": "1.7.10",
-		"credits": "${credits}"
+		"version":"${modVersion}",
+		"mcversion": "${minecraftVersion}",
+		"credits": "SrRapero720, Toshayo",
+		"logoFile": "icon.png"
 	}
 ]

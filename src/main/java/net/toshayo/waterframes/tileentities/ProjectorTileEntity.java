@@ -7,9 +7,4 @@ public class ProjectorTileEntity extends DisplayTileEntity {
     public ProjectorTileEntity() {
         super(new DisplayData(), DisplayCaps.PROJECTOR);
     }
-
-    /*@Override
-    public String getComponentName() {
-        return "wf_projector";
-    }*/
 }

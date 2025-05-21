@@ -1,10 +1,16 @@
 package net.toshayo.waterframes.tileentities;
 
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import li.cil.oc.api.machine.Arguments;
+import li.cil.oc.api.machine.Callback;
+import li.cil.oc.api.machine.Context;
+import li.cil.oc.api.network.SimpleComponent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -20,6 +26,7 @@ import net.toshayo.waterframes.blocks.DisplayBlock;
 import net.toshayo.waterframes.client.TextureDisplay;
 import net.toshayo.waterframes.network.PacketDispatcher;
 import net.toshayo.waterframes.network.packets.*;
+import org.apache.commons.lang3.tuple.Triple;
 import org.watermedia.api.image.ImageAPI;
 import org.watermedia.api.image.ImageCache;
 import org.watermedia.api.math.MathAPI;
@@ -27,8 +34,10 @@ import toshayopack.team.creative.creativecore.common.util.math.AlignedBox;
 import toshayopack.team.creative.creativecore.common.util.math.Axis;
 import toshayopack.team.creative.creativecore.common.util.math.Facing;
 
-//@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers")
-public abstract class DisplayTileEntity extends TileEntity /*implements SimpleComponent*/ {
+import java.net.URI;
+
+@Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers")})
+public abstract class DisplayTileEntity extends TileEntity implements SimpleComponent {
     private static int lagTickTime;
 
     public final DisplayData data;
@@ -189,7 +198,7 @@ public abstract class DisplayTileEntity extends TileEntity /*implements SimpleCo
 
     @Override
     public void invalidate() { // setRemoved
-        if (this.isClient()) {
+        if (this.isClient() && display != null && !display.isCameraMode()) {
             this.release();
         }
         super.invalidate();
@@ -384,7 +393,8 @@ public abstract class DisplayTileEntity extends TileEntity /*implements SimpleCo
         return EnumFacing.SOUTH;
     }
 
-    /*@Override
+    @Override
+    @Optional.Method(modid = "OpenComputers")
     public String getComponentName() {
         return "waterframe";
     }
@@ -392,18 +402,18 @@ public abstract class DisplayTileEntity extends TileEntity /*implements SimpleCo
     @Callback(doc = "function():string -- Get display URL.")
     @Optional.Method(modid = "OpenComputers")
     public Object[] getURL(Context context, Arguments args) {
-        return new Object[] { data.url };
+        return new Object[] { data.uri.toString() };
     }
 
     @Callback(doc = "function(url:string):nil -- Set display URL.")
     @Optional.Method(modid = "OpenComputers")
     public Object[] setURL(Context context, Arguments args) {
-        String url = args.checkString(0);
-        if (!data.url.equals(url)) {
+        URI uri = URI.create(args.checkString(0));
+        if (!data.uri.equals(uri)) {
             data.tick = 0;
             data.tickMax = -1;
         }
-        data.url = url;
+        data.uri = uri;
         data.uuid = DisplayData.NIL_UUID;
         markDirty();
         return new Object[] {};
@@ -458,17 +468,4 @@ public abstract class DisplayTileEntity extends TileEntity /*implements SimpleCo
         PacketDispatcher.wrapper.sendTo(new RequestDisplayInfoPacket(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 0, 0), ((EntityPlayerMP) worldObj.playerEntities.get(0)));
         return new Object[] { true };
     }
-
-    public String[] methods() {
-        return new String[] {
-                "getURL",
-                "setURL",
-                "getWidth",
-                "setWidth",
-                "getHeight",
-                "setHeight",
-                "setAutoWidth",
-                "setAutoHeight",
-        };
-    }*/
 }

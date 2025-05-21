@@ -8,9 +8,4 @@ public class FrameTileEntity extends DisplayTileEntity {
     public FrameTileEntity() {
         super(new DisplayData().setProjectionDistance(FrameBlock.THICKNESS), DisplayCaps.FRAME);
     }
-
-   /* @Override
-    public String getComponentName() {
-        return "wf_frame";
-    }*/
 }

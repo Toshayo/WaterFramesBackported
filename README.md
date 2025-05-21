@@ -25,6 +25,7 @@ A rewrite for forge 1.7.10 of a nice mod WATERFrAMES (source at: [https://github
 - Redstone control is not supported yet.
 - Displays can show camera view from Security Craft if LookingGlass is installed. To use this feature
   set ``camera://x,y,z`` where x, y and z are camera coordinates.
+- OpenComputers integration is present. You can set URL and other parameters with computers.
 - Other features might not be ported from WATERFrAMES.
 
 If you are experiencing crashes, feel free to open issues [here](https://github.com/Toshayo/WaterFrames/issues) I'll fix when I have time.

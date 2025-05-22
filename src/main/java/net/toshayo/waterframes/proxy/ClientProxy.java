@@ -40,6 +40,13 @@ public class ClientProxy extends CommonProxy {
         if(!new Version(WaterMedia.VERSION).atLeast(minVersion)) {
             throw new RuntimeException("WaterMedia " + WaterMedia.VERSION + " is too old, please update the mod");
         }
+        try {
+            Class.forName("com.sun.jna.Platform");
+        } catch (ClassNotFoundException ignored) {
+            throw new RuntimeException("JNA library missing!\r\nPlease download the library from the two links (jna and jna-platform) and put the jars into mods folder.\r\n" +
+                    "- https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar\r\n" +
+                    "- https://repo1.maven.org/maven2/net/java/dev/jna/jna-platform/5.10.0/jna-platform-5.10.0.jar\r\n");
+        }
         WaterMedia.prepare(ILoader.DEFAULT).start();
     }
 

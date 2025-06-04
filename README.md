@@ -9,11 +9,10 @@ A rewrite for forge 1.7.10 of a nice mod WATERFrAMES (source at: [https://github
     Take latest version (recommended 2.1.24), and it does not matter that the mod is for 1.21.+
 - JNA
 
-    You will need jna and jna-platform libraries (5.10.0 for example). You can download these libraries here:
-    - [https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar](https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar)
-    - [https://repo1.maven.org/maven2/net/java/dev/jna/jna-platform/5.10.0/jna-platform-5.10.0.jar](https://repo1.maven.org/maven2/net/java/dev/jna/jna-platform/5.10.0/jna-platform-5.10.0.jar)
+    You will need jna. You can download this library (minecraft's version) here:
+    - [https://libraries.minecraft.net/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar](https://libraries.minecraft.net/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar)
     
-    They should be installed in ``mods`` folder like any other mod.
+    It should be installed in ``mods`` folder like any other mod.
 
 ### Credits
 

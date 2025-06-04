@@ -10,7 +10,7 @@ A rewrite for forge 1.7.10 of a nice mod WATERFrAMES (source at: [https://github
 - JNA
 
     You will need jna and jna-platform libraries (5.10.0 for example). You can download these libraries here:
-    - [https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar](https://repo1.maven.org/maven2/net/java/dev/jna/jna-platform/5.10.0/jna-platform-5.10.0.jar)
+    - [https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar](https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar)
     - [https://repo1.maven.org/maven2/net/java/dev/jna/jna-platform/5.10.0/jna-platform-5.10.0.jar](https://repo1.maven.org/maven2/net/java/dev/jna/jna-platform/5.10.0/jna-platform-5.10.0.jar)
     
     They should be installed in ``mods`` folder like any other mod.

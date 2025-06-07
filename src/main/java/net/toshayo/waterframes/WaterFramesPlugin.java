@@ -1,9 +1,16 @@
 package net.toshayo.waterframes;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
@@ -12,6 +19,27 @@ import java.util.Map;
 })
 public class WaterFramesPlugin implements IFMLLoadingPlugin {
     public static final Logger LOGGER = LogManager.getLogger("WaterFramesBackportedPlugin");
+
+    public WaterFramesPlugin() {
+        final Path jnaLibPath = Paths.get("mods", "waterframes-jna-5.10.0.jar");
+        if(!jnaLibPath.toFile().exists()) {
+            LOGGER.info("Extracting JNA library to {}", jnaLibPath.toAbsolutePath());
+            try(InputStream is = getClass().getResourceAsStream("/jars/jna-5.10.0.jar")) {
+                if(is != null) {
+                    try(OutputStream os = Files.newOutputStream(jnaLibPath)) {
+                        IOUtils.copy(is, os);
+                    }
+                    LOGGER.info("JNA extraction completed");
+                } else {
+                    LOGGER.fatal("Failed to find embedded JNA library!");
+                    throw new RuntimeException("JNA library is not included");
+                }
+            } catch (IOException e) {
+                LOGGER.fatal("Failed to extract JNA library!");
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
     @Override
     public String[] getASMTransformerClass() {

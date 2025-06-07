@@ -9,16 +9,16 @@ A rewrite for forge 1.7.10 of a nice mod WATERFrAMES (source at: [https://github
     Take latest version (recommended 2.1.24), and it does not matter that the mod is for 1.21.+
 - JNA
 
-    You will need jna. You can download this library (minecraft's version) here:
-    - [https://libraries.minecraft.net/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar](https://libraries.minecraft.net/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar)
-    
-    It should be installed in ``mods`` folder like any other mod.
+    This library is now bundled with the mod. Please remove ``jna-5.10.0.jar`` and
+    ``jna-platform-5.10.0.jar`` if you have placed them in your ``mods`` folder.
+    The mod will now extract a ``waterframes-jna-5.10.0.jar`` into the ``mods`` folder.
 
 ### Credits
 
 - [SrRapero720](https://github.com/SrRapero720): Original author of the mod
 - [FabiAcr](https://www.twitch.tv/fabi_acr): Author of the WATERFrAMES block models
 - **Kotyarendj**: Author of the current WATERFrAMES block textures
+- **[AzzyDR](https://github.com/AzzyDR)**: Mod tester
 
 
 ### More info about the 1.7.10 port

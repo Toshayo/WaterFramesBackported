@@ -3,6 +3,7 @@ package net.toshayo.waterframes;
 import net.minecraft.util.EnumFacing;
 import net.toshayo.waterframes.blocks.BigTVBlock;
 import net.toshayo.waterframes.blocks.TVBlock;
+import net.toshayo.waterframes.blocks.TVBoxBlock;
 import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 import toshayopack.team.creative.creativecore.common.util.math.AlignedBox;
 
@@ -17,10 +18,11 @@ public final class DisplayCaps {
     }
 
     public static final DisplayCaps
-            FRAME = new DisplayCaps(true, false, true, 0.001F, tile -> true, (t, d, a, r) -> DisplayTileEntity.getBasicBox(t)),
+            FRAME = new DisplayCaps(true, false, true, 0.001F, (t, d, a, r) -> DisplayTileEntity.getBasicBox(t)),
             PROJECTOR = new DisplayCaps(false, true, true, 0.999F, (t, d, a, r) -> DisplayTileEntity.getBasicBox(t)),
             TV = new DisplayCaps(false, false, false, 0.001F, tile -> true/*EnumFacing.getFront(tile.getBlockMetadata()) != tile.blockFacing*/, (t, d, a, r) -> TVBlock.box(d, a, r)),
-            BIG_TV = new DisplayCaps(false, false, false, 0.001F, tile -> true, (t, d, a, r) -> BigTVBlock.box(d, r));
+            BIG_TV = new DisplayCaps(false, false, false, 0.001F, tile -> true, (t, d, a, r) -> BigTVBlock.box(d, r)),
+            TV_BOX = new DisplayCaps(false, false, false, 0.001F, tile -> true, (t, d, a, r) -> TVBoxBlock.box(d, r));
 
     private final boolean renderBehind;
     private final boolean projects;

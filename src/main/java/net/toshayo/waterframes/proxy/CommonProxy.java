@@ -18,10 +18,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.toshayo.waterframes.DisplayData;
 import net.toshayo.waterframes.WFConfig;
 import net.toshayo.waterframes.WaterFramesMod;
-import net.toshayo.waterframes.blocks.BigTVBlock;
-import net.toshayo.waterframes.blocks.FrameBlock;
-import net.toshayo.waterframes.blocks.ProjectorBlock;
-import net.toshayo.waterframes.blocks.TVBlock;
+import net.toshayo.waterframes.blocks.*;
 import net.toshayo.waterframes.client.GuiHandler;
 import net.toshayo.waterframes.items.RemoteControlItem;
 import net.toshayo.waterframes.network.PacketDispatcher;
@@ -38,6 +35,7 @@ public class CommonProxy {
         WaterFramesMod.TV = new TVBlock();
         WaterFramesMod.BIG_TV = new BigTVBlock();
         WaterFramesMod.PROJECTOR = new ProjectorBlock();
+        WaterFramesMod.TV_BOX = new TVBoxBlock();
 
         WaterFramesMod.REMOTE = new RemoteControlItem();
 
@@ -45,6 +43,7 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TVTileEntity.class, new ResourceLocation(WaterFramesMod.MOD_ID, "tv"));
         GameRegistry.registerTileEntity(BigTVTileEntity.class, new ResourceLocation(WaterFramesMod.MOD_ID, "big_tv"));
         GameRegistry.registerTileEntity(ProjectorTileEntity.class, new ResourceLocation(WaterFramesMod.MOD_ID, "projector"));
+        GameRegistry.registerTileEntity(TVBoxTileEntity.class, new ResourceLocation(WaterFramesMod.MOD_ID, "tv_box"));
 
         PacketDispatcher.registerPackets();
         NetworkRegistry.INSTANCE.registerGuiHandler(WaterFramesMod.INSTANCE, new GuiHandler());
@@ -56,6 +55,7 @@ public class CommonProxy {
         e.getRegistry().register(WaterFramesMod.TV);
         e.getRegistry().register(WaterFramesMod.BIG_TV);
         e.getRegistry().register(WaterFramesMod.PROJECTOR);
+        e.getRegistry().register(WaterFramesMod.TV_BOX);
     }
 
     @SubscribeEvent
@@ -65,6 +65,7 @@ public class CommonProxy {
         WaterFramesMod.ITEMS.add(new ItemBlock(WaterFramesMod.TV).setRegistryName(WaterFramesMod.TV.getRegistryName()));
         WaterFramesMod.ITEMS.add(new ItemBlock(WaterFramesMod.BIG_TV).setRegistryName(WaterFramesMod.BIG_TV.getRegistryName()));
         WaterFramesMod.ITEMS.add(new ItemBlock(WaterFramesMod.PROJECTOR).setRegistryName(WaterFramesMod.PROJECTOR.getRegistryName()));
+        WaterFramesMod.ITEMS.add(new ItemBlock(WaterFramesMod.TV_BOX).setRegistryName(WaterFramesMod.TV_BOX.getRegistryName()));
 
         WaterFramesMod.ITEMS.forEach(e.getRegistry()::register);
     }

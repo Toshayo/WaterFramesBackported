@@ -45,7 +45,7 @@ public class DisplayRenderer extends TileEntitySpecialRenderer<DisplayTileEntity
 
         GL11.glTranslated(x + 0.5, y + 0.5, z + 0.5);
         GL11.glRotatef(-tile.data.rotation, direction.getFrontOffsetX(), direction.getFrontOffsetY(), direction.getFrontOffsetZ());
-        if(tile.caps.invertedFace(tile)) {
+        if(!tile.caps.invertedFace(tile)) {
             GL11.glRotatef(-180, 0, 1, 0);
         }
         GL11.glTranslated(-0.5, -0.5, -0.5);

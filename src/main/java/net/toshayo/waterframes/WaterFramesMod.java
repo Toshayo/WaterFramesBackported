@@ -33,6 +33,7 @@ public class WaterFramesMod {
     public static Block TV;
     public static Block BIG_TV;
     public static Block PROJECTOR;
+    public static Block TV_BOX;
     public static Item REMOTE;
 
     public static List<Item> ITEMS = new ArrayList<>();

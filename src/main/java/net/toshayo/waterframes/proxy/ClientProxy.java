@@ -61,10 +61,11 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
-        ClientRegistry.bindTileEntitySpecialRenderer(FrameTileEntity.class, new FrameRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(FrameTileEntity.class, new DisplayRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(BigTVTileEntity.class, new DisplayRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TVTileEntity.class, new DisplayRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(ProjectorTileEntity.class, new DisplayRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TVBoxTileEntity.class, new DisplayRenderer());
     }
 
     @SubscribeEvent

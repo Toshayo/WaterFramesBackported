@@ -1,0 +1,165 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "https://files.minecraftforge.net/maven" }
+        maven { url = 'https://maven.minecraftforge.net/' }
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+'
+    }
+}
+apply plugin: 'eclipse'
+apply plugin: 'net.minecraftforge.gradle'
+
+
+version = minecraft_version + '_' + mod_version
+group = "${maven_group}"
+archivesBaseName = mod_name
+
+sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
+
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                mod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                mod {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    maven {
+        url = "https://maven.cil.li/"
+    }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    compileOnly "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
+    implementation "blank:NTM-Extended:1.12.2:2.0.2"
+
+    implementation "maven.modrinth:watermedia:${watermedia_version}"
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", mod_version
+    inputs.property "mcversion", minecraft_version
+    inputs.property "mod_id", mod_id
+    inputs.property "mod_name", mod_name
+    inputs.property "mod_description", mod_description
+    inputs.property "mod_authors", mod_authors
+    inputs.property "version", mod_version
+    inputs.property "mcversion", minecraft_version
+    inputs.property "credits", credits
+
+    // replace stuff in mcmod.info
+    filesMatching('mcmod.info') {
+        expand([
+                mod_id: mod_id,
+                mod_name: mod_name,
+                mod_description: mod_description,
+                mod_authors: mod_authors.replace(",", "\",\""),
+                version: mod_version,
+                mcversion: minecraft_version,
+                credits: credits
+        ])
+    }
+    filesMatching('pack.mcmeta') {
+        expand([
+                mod_name: mod_name
+        ])
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Implementation-Title"    : archiveBaseName,
+                "Implementation-Version"  : project.version,
+                "FMLCorePluginContainsFMLMod": "true",
+                "FMLCorePlugin": "net.toshayo.waterframes.WaterFramesPlugin",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "FMLAT": "waterframes_at.cfg"
+        ])
+    }
+}
+
+build {
+    doLast {
+        if(project.hasProperty("TOSHAYO_JKS")) {
+            println "Using Project properties for jar signing."
+            def jks_file = project.TOSHAYO_JKS
+            def passwd = project.TOSHAYO_PWD
+            if (jks_file != null && passwd != null) {
+                def exec_line = [
+                        "jarsigner",
+                        "-sigalg", "SHA256withECDSA",
+                        "-digestalg", "SHA-256",
+                        "-keystore", jks_file,
+                        "-storepass", passwd,
+                        "-tsa", "http://timestamp.digicert.com",
+                        jar.archiveFile.get(), project.TOSHAYO_APP_ALIAS
+                ].execute()
+                exec_line.waitFor()
+                if(exec_line.exitValue() != 0) {
+                    throw new RuntimeException("Signing failed!")
+                }
+            }
+        } else {
+            println 'No signing secrets found, build will not be signed.'
+        }
+    }
+}

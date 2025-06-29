@@ -1,0 +1,10 @@
+{
+    "variants": {
+        "facing=north": {"model": "waterframes:frame","y": 0},
+        "facing=south": { "model": "waterframes:frame", "y": 180},
+        "facing=west": {"model": "waterframes:frame", "y": -90},
+        "facing=east": {"model": "waterframes:frame", "y": -270},
+        "facing=up": {"model": "waterframes:frame","x": -90 },
+        "facing=down": {"model": "waterframes:frame", "x": 90 }
+    }
+}

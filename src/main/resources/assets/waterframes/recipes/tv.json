@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "iii",
+    "iGi",
+    "iRi"
+  ],
+  "key": {
+    "i": {
+      "item": "minecraft:iron_ingot"
+    },
+    "G": {
+      "item": "minecraft:stained_glass",
+      "data": 32767
+    },
+    "R": {
+      "item": "waterframes:remote"
+    }
+  },
+  "result": {
+    "id": "waterframes:tv",
+    "item": "waterframes:tv",
+    "count": 1
+  }
+}

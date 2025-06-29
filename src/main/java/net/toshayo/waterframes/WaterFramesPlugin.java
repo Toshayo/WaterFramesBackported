@@ -37,7 +37,8 @@ public class WaterFramesPlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[]{
-                "net.toshayo.waterframes.transformers.LibrariesDowngradingTransformer"
+                "net.toshayo.waterframes.transformers.LibrariesDowngradingTransformer",
+                "net.toshayo.waterframes.transformers.WATERMeDIALoadingPreventionTransformer"
         };
     }
 

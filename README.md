@@ -23,6 +23,8 @@ A rewrite for forge 1.12.2 of a nice mod WATERFrAMES (source at: [https://github
 - OpenComputers integration is present. You can set URL and other parameters with computers.
 - Other features might not be ported from WATERFrAMES.
 - Will be (if my free time allows it) synchronised with my 1.7.10 port
+  - First two numbers of the mod version indicate minecraft-version-agnostic versions of the mod.
+  - Third number of the mod version indicate specific minecraft version patch (improvements, fixes).
 
 If you are experiencing crashes, feel free to open issues [here](https://github.com/Toshayo/WaterFrames/issues) I'll fix when I have time.
 

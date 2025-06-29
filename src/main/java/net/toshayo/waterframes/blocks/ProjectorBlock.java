@@ -1,9 +1,7 @@
 package net.toshayo.waterframes.blocks;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.toshayo.waterframes.WaterFramesMod;
@@ -16,11 +14,6 @@ public class ProjectorBlock extends DisplayBlock {
         setRegistryName(new ResourceLocation(WaterFramesMod.MOD_ID, "projector"));
         setUnlocalizedName("projector");
         setCreativeTab(CreativeTabs.DECORATIONS);
-    }
-
-    @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) {
-        return EnumBlockRenderType.INVISIBLE;
     }
 
     @Override

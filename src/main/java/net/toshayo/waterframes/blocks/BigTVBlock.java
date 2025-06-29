@@ -1,9 +1,7 @@
 package net.toshayo.waterframes.blocks;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -25,11 +23,6 @@ public class BigTVBlock extends DisplayBlock {
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
         return new BigTVTileEntity();
-    }
-
-    @Override
-    public EnumBlockRenderType getRenderType(IBlockState p_149645_1_) {
-        return EnumBlockRenderType.INVISIBLE;
     }
 
     public static AlignedBox box(EnumFacing direction, boolean renderMode) {

@@ -17,7 +17,7 @@ public final class DisplayCaps {
     }
 
     public static final DisplayCaps
-            FRAME = new DisplayCaps(true, false, true, 0.001F,/* tile -> true,*/ (t, d, a, r) -> DisplayTileEntity.getBasicBox(t)),
+            FRAME = new DisplayCaps(true, false, true, 0.001F, tile -> true, (t, d, a, r) -> DisplayTileEntity.getBasicBox(t)),
             PROJECTOR = new DisplayCaps(false, true, true, 0.999F, (t, d, a, r) -> DisplayTileEntity.getBasicBox(t)),
             TV = new DisplayCaps(false, false, false, 0.001F, tile -> true/*EnumFacing.getFront(tile.getBlockMetadata()) != tile.blockFacing*/, (t, d, a, r) -> TVBlock.box(d, a, r)),
             BIG_TV = new DisplayCaps(false, false, false, 0.001F, tile -> true, (t, d, a, r) -> BigTVBlock.box(d, r));

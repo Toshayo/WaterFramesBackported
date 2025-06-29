@@ -1,9 +1,7 @@
 package net.toshayo.waterframes.client.render.tileentity;
 
-import com.hbm.render.amlfrom1710.IModelCustom;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import net.toshayo.waterframes.WFConfig;
 import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.client.DisplayControl;
@@ -47,6 +45,9 @@ public class DisplayRenderer extends TileEntitySpecialRenderer<DisplayTileEntity
 
         GL11.glTranslated(x + 0.5, y + 0.5, z + 0.5);
         GL11.glRotatef(-tile.data.rotation, direction.getFrontOffsetX(), direction.getFrontOffsetY(), direction.getFrontOffsetZ());
+        if(tile.caps.invertedFace(tile)) {
+            GL11.glRotatef(-180, 0, 1, 0);
+        }
         GL11.glTranslated(-0.5, -0.5, -0.5);
 
         if (direction == EnumFacing.UP || direction == EnumFacing.SOUTH || direction == EnumFacing.EAST) {
@@ -77,44 +78,6 @@ public class DisplayRenderer extends TileEntitySpecialRenderer<DisplayTileEntity
         /*if(GL11.glGetInteger(GL11.GL_SRC_ALPHA) != srcAlphaBackup) {
             GL11.glBlendFunc(GL11.GL_SRC_ALPHA, srcAlphaBackup);
         }*/
-        GL11.glPopMatrix();
-    }
-
-    protected void renderModel(ResourceLocation texture, IModelCustom model, double x, double y, double z, EnumFacing facing, boolean rotate180) {
-        GL11.glPushMatrix();
-
-        GL11.glTranslated(x, y, z);
-        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
-
-        int angle = 0;
-        switch (facing) {
-            case NORTH:
-                angle = 180;
-                break;
-            case SOUTH:
-                break;
-            case WEST:
-                angle = -90;
-                break;
-            case EAST:
-                angle = 90;
-                break;
-        }
-        if(rotate180) {
-            angle += 180;
-        }
-        GL11.glRotatef(angle, 0, 1, 0);
-
-        boolean cullBackup = GL11.glIsEnabled(GL11.GL_CULL_FACE);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-
-        bindTexture(texture);
-
-        model.renderAll();
-
-        if(cullBackup) {
-            GL11.glEnable(GL11.GL_CULL_FACE);
-        }
         GL11.glPopMatrix();
     }
 

@@ -1,22 +1,25 @@
 package net.toshayo.waterframes.proxy;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.client.DisplayControl;
-import net.toshayo.waterframes.client.render.tileentity.BigTVRenderer;
-import net.toshayo.waterframes.client.render.tileentity.FrameRenderer;
-import net.toshayo.waterframes.client.render.tileentity.ProjectorRenderer;
-import net.toshayo.waterframes.client.render.tileentity.TVRenderer;
+import net.toshayo.waterframes.client.FrameBakedModel;
+import net.toshayo.waterframes.client.render.tileentity.*;
 import net.toshayo.waterframes.network.PacketDispatcher;
 import net.toshayo.waterframes.network.packets.AbstractDisplayNetworkPacket;
 import net.toshayo.waterframes.network.packets.MutePacket;
@@ -45,6 +48,7 @@ public class ClientProxy extends CommonProxy {
                     "- https://repo1.maven.org/maven2/net/java/dev/jna/jna-platform/5.10.0/jna-platform-5.10.0.jar\r\n");
         }
         WaterMedia.prepare(ILoader.DEFAULT).start();
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
@@ -58,9 +62,21 @@ public class ClientProxy extends CommonProxy {
     public void postInit(FMLPostInitializationEvent event) {
         super.postInit(event);
         ClientRegistry.bindTileEntitySpecialRenderer(FrameTileEntity.class, new FrameRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(BigTVTileEntity.class, new BigTVRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(TVTileEntity.class, new TVRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(ProjectorTileEntity.class, new ProjectorRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(BigTVTileEntity.class, new DisplayRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TVTileEntity.class, new DisplayRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(ProjectorTileEntity.class, new DisplayRenderer());
+    }
+
+    @SubscribeEvent
+    public void onModelBake(ModelBakeEvent event) {
+        WaterFramesMod.LOGGER.info("Baking frame models");
+        for(EnumFacing facing : EnumFacing.values()) {
+            ModelResourceLocation modelLocation = new ModelResourceLocation(WaterFramesMod.MOD_ID + ":frame", "facing=" + facing.getName());
+            IBakedModel existing = event.getModelRegistry().getObject(modelLocation);
+            if (existing != null) {
+                event.getModelRegistry().putObject(modelLocation, new FrameBakedModel(existing));
+            }
+        }
     }
 
     @Override

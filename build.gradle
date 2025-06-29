@@ -86,7 +86,6 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     compileOnly "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
-    implementation "blank:NTM-Extended:1.12.2:2.0.2"
 
     implementation "maven.modrinth:watermedia:${watermedia_version}"
 }

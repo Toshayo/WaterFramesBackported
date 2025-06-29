@@ -7,7 +7,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.tileentities.TVBoxTileEntity;
-import net.toshayo.waterframes.tileentities.TVTileEntity;
 import toshayopack.team.creative.creativecore.common.util.math.AlignedBox;
 import toshayopack.team.creative.creativecore.common.util.math.Axis;
 import toshayopack.team.creative.creativecore.common.util.math.Facing;

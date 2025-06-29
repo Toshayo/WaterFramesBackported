@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.client.DisplayControl;
 import net.toshayo.waterframes.client.FrameBakedModel;
-import net.toshayo.waterframes.client.render.tileentity.*;
+import net.toshayo.waterframes.client.render.tileentity.DisplayRenderer;
 import net.toshayo.waterframes.network.PacketDispatcher;
 import net.toshayo.waterframes.network.packets.AbstractDisplayNetworkPacket;
 import net.toshayo.waterframes.network.packets.MutePacket;

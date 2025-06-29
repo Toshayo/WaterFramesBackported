@@ -36,7 +36,7 @@ public class WaterFramesMod {
     public static Block TV_BOX;
     public static Item REMOTE;
 
-    public static List<Item> ITEMS = new ArrayList<>();
+    public static final List<Item> ITEMS = new ArrayList<>();
 
 
     @Mod.Instance(MOD_ID)

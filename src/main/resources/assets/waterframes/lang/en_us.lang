@@ -2,6 +2,7 @@ tile.frame.name=Frame
 tile.projector.name=Projector
 tile.tv.name=Television
 tile.big_tv.name=Big Television
+tile.tv_box.name=Box Television
 item.remote.name=Remote Control
 waterframes.gui.label.url=URL
 waterframes.gui.textBox.url=https://i.imgur.com/1yCDs5C.mp4

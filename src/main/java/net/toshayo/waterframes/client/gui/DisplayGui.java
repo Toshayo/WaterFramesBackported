@@ -196,7 +196,7 @@ public class DisplayGui extends GuiScreen {
                     value -> projection_distance = value / 100F
             ));
             widgets.add(new StateButton(
-                    this, new IconStyles.Icon[]{IconStyles.AUDIO_POS_BLOCK, IconStyles.AUDIO_POS_PICTURE, IconStyles.AUDIO_POS_CENTER},
+                    this, new IconStyles.Icon[]{IconStyles.AUDIO_POS_BLOCK, IconStyles.AUDIO_POS_CENTER, IconStyles.AUDIO_POS_PICTURE},
                     audioOffset,
                     x + 10 + 16 + 5 + WIDTH / 2 - IconStyles.AUDIO_POS_BLOCK.width - 4, y + 10 + fontRenderer.FONT_HEIGHT * 15,
                     IconStyles.AUDIO_POS_BLOCK.width + 4, 20,

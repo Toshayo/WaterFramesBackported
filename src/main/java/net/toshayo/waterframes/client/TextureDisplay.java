@@ -73,9 +73,9 @@ public class TextureDisplay {
             return;
         }
 
-        int x = (int) (xCoord + EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetX() * tile.data.audioOffset);
-        int y = (int) (yCoord + EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetY() * tile.data.audioOffset);
-        int z = (int) (zCoord + EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetZ() * tile.data.audioOffset);
+        int x = (int) (xCoord + EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetX() * -tile.data.audioOffset);
+        int y = (int) (yCoord + EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetY() * -tile.data.audioOffset);
+        int z = (int) (zCoord + EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetZ() * -tile.data.audioOffset);
 
         this.currentVolume = limitVolume(x, y, z, this.tile.data.volume, this.tile.data.minVolumeDistance, this.tile.data.maxVolumeDistance);
 
@@ -212,9 +212,9 @@ public class TextureDisplay {
                 if(mediaPlayer.isBroken()) {
                     break;
                 }
-                x += (int) (EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetX() * tile.data.audioOffset);
-                y += (int) (EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetY() * tile.data.audioOffset);
-                z += (int) (EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetZ() * tile.data.audioOffset);
+                x += (int) (EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetX() * -tile.data.audioOffset);
+                y += (int) (EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetY() * -tile.data.audioOffset);
+                z += (int) (EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetZ() * -tile.data.audioOffset);
                 int volume = limitVolume(x, y, z, this.tile.data.volume, this.tile.data.minVolumeDistance, this.tile.data.maxVolumeDistance);
 
                 if(!seeking() && seekTime != 0) {

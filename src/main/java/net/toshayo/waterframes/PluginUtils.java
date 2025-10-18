@@ -3,9 +3,11 @@ package net.toshayo.waterframes;
 import net.toshayo.waterframes.utils.ExtensionsMimeTypes;
 import org.apache.commons.io.FilenameUtils;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 public class PluginUtils {
     public static final String ARCH = System.getProperty("os.arch").toLowerCase().trim();
@@ -66,5 +68,12 @@ public class PluginUtils {
 
     private static String getMimeByExtension(String extension) {
         return ExtensionsMimeTypes.MIME_BY_EXTENSION.getOrDefault(extension, "content/unknown");
+    }
+
+    public static void RenderAPI_deleteTextures(int[] textureIDs) {
+        IntBuffer buffer = BufferUtils.createIntBuffer(textureIDs.length);
+        buffer.put(textureIDs);
+        buffer.flip();
+        GL11.glDeleteTextures(buffer);
     }
 }

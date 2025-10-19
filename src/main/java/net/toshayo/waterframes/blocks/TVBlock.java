@@ -30,6 +30,9 @@ public class TVBlock extends DisplayBlock {
         Facing wide = Facing.get(attachedBlockFace);
         AlignedBox box = new AlignedBox();
 
+        // FIXME: re-add tv wall/ceiling attachments
+        attachedBlockFace = EnumFacing.UP;
+
         // SETUP PROFUNDITY
         float renderMargin = renderMode ? 1f : 0;
         if (attachedBlockFace.getOpposite() == direction) {

@@ -6,7 +6,7 @@ A rewrite for forge 1.12.2 of a nice mod WATERFrAMES (source at: [https://github
 
 - [WATERMeDIA](https://www.curseforge.com/minecraft/mc-mods/watermedia): Multimedia Support
 
-    Take latest version (recommended 2.1.25), and it does not matter that the mod is for 1.21.+
+    Take version 2.1.24 and it does not matter that the mod is for 1.21.+
 
 ### Credits
 

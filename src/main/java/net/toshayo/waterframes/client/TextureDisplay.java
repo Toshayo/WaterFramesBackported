@@ -15,6 +15,7 @@ import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 import org.watermedia.api.image.ImageAPI;
 import org.watermedia.api.image.ImageCache;
+import org.watermedia.api.image.ImageRenderer;
 import org.watermedia.api.math.MathAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
 import org.watermedia.videolan4j.player.base.State;
@@ -172,16 +173,6 @@ public class TextureDisplay {
         return -1;
     }
 
-    public void preRender() {
-        switch (displayMode) {
-            case PICTURE:
-                break;
-            case VIDEO:
-                this.mediaPlayer.preRender();
-                break;
-        }
-    }
-
     public int getTextureId() {
         return texture();
     }
@@ -192,7 +183,13 @@ public class TextureDisplay {
 
     public long duration() {
         return switch (displayMode) {
-            case PICTURE -> this.imageCache.getRenderer() != null ? this.imageCache.getRenderer().duration : 0;
+            case PICTURE -> {
+                ImageRenderer renderer = this.imageCache.getRenderer();
+                if(renderer != null){
+                    yield renderer.duration == 0 ? 20 * 20 : renderer.duration;
+                }
+                yield 0;
+            }
             case VIDEO -> this.mediaPlayer.getDuration();
             case AUDIO, CAMERA -> 0;
             default -> throw new IllegalArgumentException();
@@ -214,7 +211,7 @@ public class TextureDisplay {
         return switch (displayMode) {
             case PICTURE ->
                     (imageCache.getStatus() == ImageCache.Status.READY && !this.imageCache.isVideo() && tile.data.active) || notVideo;
-            case VIDEO -> this.mediaPlayer.isValid() && tile.data.active;
+            case VIDEO -> this.mediaPlayer.isSafeUse() && !this.mediaPlayer.isWaiting() && !this.mediaPlayer.isLoading() && this.mediaPlayer.isReady() && tile.data.active;
             case AUDIO -> false;
             case CAMERA -> tile.data.active;
             default -> throw new IllegalArgumentException();
@@ -226,6 +223,11 @@ public class TextureDisplay {
             tile.data.tick = 0;
         }
         tile.syncTime(tile.data.tick, durationInTicks());
+        synced = true;
+    }
+
+    public void forceSeek() {
+        this.mediaPlayer.seekTo(MathAPI.tickToMs(tile.data.tick));
     }
 
     public void tick(int x, int y, int z) {
@@ -315,7 +317,6 @@ public class TextureDisplay {
 
         if (!synced && canRender()) {
             syncDuration();
-            synced = true;
         }
     }
 
@@ -348,6 +349,14 @@ public class TextureDisplay {
             case PICTURE, CAMERA -> false;
             case VIDEO, AUDIO ->
                     mediaPlayer.isBuffering() || mediaPlayer.isLoading() || mediaPlayer.raw().mediaPlayer().status().state() == State.NOTHING_SPECIAL;
+        };
+    }
+
+    public boolean isBroken() {
+        return switch (displayMode) {
+            case PICTURE -> this.imageCache == null;
+            case VIDEO, AUDIO -> this.mediaPlayer.isBroken();
+            case CAMERA -> false;
         };
     }
 

@@ -16,7 +16,7 @@ public class MemoryAllocVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
-        if (methodName.equals("createByteBuffer") || methodName.equals("resizeByteBuffer") || methodName.equals("freeByteBuffer")) {
+        if ((methodName.equals("createByteBuffer") && desc.startsWith("(II)")) || methodName.equals("resizeByteBuffer") || methodName.equals("freeByteBuffer")) {
             MethodVisitor methodVisitor = cv.visitMethod(access, methodName, desc, signature, exceptions);
             return new MethodVisitor(Opcodes.ASM5, methodVisitor) {
                 @Override
@@ -25,6 +25,7 @@ public class MemoryAllocVisitor extends ClassVisitor {
                     switch (methodName) {
                         case "createByteBuffer":
                             mv.visitVarInsn(Opcodes.ILOAD, 0);
+                            mv.visitVarInsn(Opcodes.ILOAD, 1);
                             break;
                         case "resizeByteBuffer":
                             mv.visitVarInsn(Opcodes.ALOAD, 0);

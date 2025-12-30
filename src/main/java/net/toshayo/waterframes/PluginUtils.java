@@ -1,65 +1,60 @@
 package net.toshayo.waterframes;
 
+import com.sun.jna.Platform;
+import me.eigenraven.lwjgl3ify.api.Lwjgl3Aware;
 import net.toshayo.waterframes.utils.ExtensionsMimeTypes;
 import org.apache.commons.io.FilenameUtils;
-import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryUtil;
 
 import java.net.URI;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
+@Lwjgl3Aware
 public class PluginUtils {
     public static final String ARCH = System.getProperty("os.arch").toLowerCase().trim();
     private static final String OS = System.getProperty("os.name").toLowerCase().trim();
 
     public static boolean Platform_is64Bit() {
-        String model = System.getProperty("sun.arch.data.model", System.getProperty("com.ibm.vm.bitmode"));
-        if (model != null) {
-            return "64".equals(model);
-        } else {
-            return "x86-64".equals(ARCH) || "ia64".equals(ARCH) || "ppc64".equals(ARCH) || "ppc64le".equals(ARCH) || "sparcv9".equals(ARCH) || "mips64".equals(ARCH) || "mips64el".equals(ARCH) || "amd64".equals(ARCH) || "aarch64".equals(ARCH);
-        }
+        return Platform.is64Bit();
     }
 
     public static boolean Platform_isARM() {
-        return ARCH.startsWith("arm") || ARCH.startsWith("aarch");
+        return Platform.isARM();
     }
 
     public static boolean Platform_isWindows() {
-        return OS.startsWith("windows");
+        return Platform.isWindows();
     }
 
     public static boolean Platform_isMac() {
-        return !Platform_isWindows() && !Platform_isLinux();
+        return Platform.isMac();
     }
 
     public static boolean Platform_isLinux() {
-        return OS.startsWith("linux") && !"dalvik".equalsIgnoreCase(System.getProperty("java.vm.name"));
+        return Platform.isLinux();
     }
 
-    public static ByteBuffer MemoryAlloc_createByteBuffer(int pSize) {
-        return BufferUtils.createByteBuffer(pSize);
+    public static ByteBuffer MemoryAlloc_createByteBuffer(int alignment, int size) {
+        return MemoryUtil.memAlignedAlloc(alignment, size);
     }
 
-    public static ByteBuffer MemoryAlloc_resizeByteBuffer(ByteBuffer pBuffer, int pByteSize) {
-        if (pBuffer == null) {
-            throw new IllegalArgumentException("Buffer cannot be null");
-        }
+    public static ByteBuffer MemoryAlloc_resizeByteBuffer(ByteBuffer buffer, int newSize) {
+        MemoryUtil.MemoryAllocator allocator = MemoryUtil.getAllocator(false);
+        long address = allocator.realloc(MemoryUtil.memAddress0((Buffer) buffer), newSize);
+        if (address == 0L)
+            throw new OutOfMemoryError("Insufficient memory to reallocate " + newSize + " bytes");
 
-        ByteBuffer newBuffer = BufferUtils.createByteBuffer(pByteSize);
-        pBuffer.position(0);
-        newBuffer.put(pBuffer);
-        newBuffer.flip();
-
-        return newBuffer;
+        return MemoryUtil.memByteBuffer(address, newSize);
     }
 
-    public static void MemoryAlloc_freeByteBuffer(ByteBuffer pBuffer) {
-        pBuffer = null;
+    public static void MemoryAlloc_freeByteBuffer(ByteBuffer buffer) {
+        MemoryUtil.memAlignedFree(buffer);
     }
 
     public static String ImageFetch_getContentType(String type, URI uri) {
-        if(type.equals("content/unknown")) {
-            return getMimeByExtension(FilenameUtils.getExtension(uri.getPath()));
+        if(type == null || type.equals("content/unknown")) {
+            type = getMimeByExtension(FilenameUtils.getExtension(uri.getPath()));
         }
         return type;
     }

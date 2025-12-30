@@ -16,8 +16,18 @@ dependencies {
 	implementation "li.cil.oc:OpenComputers:MC1.7.10-1.7.+:dev"
 
 	api "maven.modrinth:watermedia:${watermedia_version}"
+	api "maven.modrinth:watermedia-yt-plugin:${watermedia_yt_plugin_version}"
+
 	implementation "net.java.dev.jna:jna:5.10.0"
 	implementation "net.java.dev.jna:jna-platform:5.10.0"
+
+	compileOnly("com.github.GTNewHorizons:lwjgl3ify:${lwjglifyVersion}") {
+		transitive = false
+	}
+	compileOnly("org.lwjgl:lwjgl-opengl:3.3.3")
+	compileOnly("com.github.GTNewHorizons:lwjgl3ify:${lwjglifyVersion}:forgePatches") {
+		transitive = false
+	}
 
 	compileOnly "blank:lookingglass"
 	compileOnly "blank:securitycraft"

@@ -33,6 +33,7 @@ waterframes.gui.flip_x=Flip X
 waterframes.gui.flip_y=Flip Y
 waterframes.gui.show_model=Show model
 waterframes.gui.render_behind=Render behind
+waterframes.gui.lit=Emit light
 waterframes.gui.audio_pos.1=Audio origin position
 waterframes.gui.audio_pos.2=Mode: %s as source
 waterframes.gui.audio_pos.states.0=Block

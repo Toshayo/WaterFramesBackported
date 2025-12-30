@@ -7,13 +7,23 @@ import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 import net.toshayo.waterframes.types.AudioPosition;
 import net.toshayo.waterframes.types.PositionHorizontal;
 import net.toshayo.waterframes.types.PositionVertical;
+import org.watermedia.api.network.NetworkAPI;
+import org.watermedia.api.network.patchs.AbstractPatch;
 import toshayopack.team.creative.creativecore.common.util.math.Vec2f;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
 import java.util.UUID;
 
 public class DisplayData {
     public static final String URL = "url";
+    public static final String URI_LIST = "uri_list";
+    public static final String URI_INDEX = "uri_index";
     public static final String PLAYER_UUID = "player_uuid";
     public static final String ACTIVE = "active";
     public static final String MIN_X = "min_x";
@@ -35,6 +45,7 @@ public class DisplayData {
     public static final String LOOP = "loop";
     public static final String PAUSED = "paused";
     public static final String MUTED = "muted";
+    public static final String LIT = "lit";
     public static final String TICK = "tick";
     public static final String TICK_MAX = "tick_max";
     public static final String DATA_V = "data_v";
@@ -51,6 +62,8 @@ public class DisplayData {
     public static final UUID NIL_UUID = new UUID(0, 0);
 
     public URI uri = null;
+    public LinkedList<URI> uris = new LinkedList<>();
+    public int uri_index;
     public UUID uuid = NIL_UUID;
     public boolean active = true;
     public final Vec2f min = new Vec2f(0f, 0f);
@@ -71,6 +84,7 @@ public class DisplayData {
     public boolean loop = true;
     public boolean paused = false;
     public boolean muted = false;
+    public boolean lit = true;
     public int tick = 0;
     public int tickMax = -1;
 
@@ -80,8 +94,53 @@ public class DisplayData {
     public float projectionDistance = WFConfig.maxProjDis(8f);
     public float audioOffset = 0;
 
-    public boolean isUriInvalid() {
-        return this.uri == null;
+    public void nextUri() {
+        if (this.uris.isEmpty()) return;
+        this.uri_index++;
+        if (this.uri_index >= this.uris.size()) {
+            this.uri_index = 0;
+        }
+        this.tick = 0;
+        this.tickMax = -1;
+    }
+    public void prevUri() {
+        if (this.uris.isEmpty()) return;
+        this.uri_index--;
+        if (this.uri_index < 0) {
+            this.uri_index = this.uris.size() - 1;
+        }
+        this.tick = 0;
+        this.tickMax = -1;
+    }
+
+    public boolean hasUri() { return this.uri != null || !this.uris.isEmpty(); }
+    public URI getUri() { return this.uris.isEmpty() ? this.uri : this.uris.get(this.uri_index); }
+
+    public void setUri(URI newUri) {
+        this.uri = newUri;
+        this.uris = tryGetPlaylist(newUri);
+    }
+
+    private static LinkedList<URI> tryGetPlaylist(URI uri) {
+        LinkedList<URI> uris = new LinkedList<>();
+        if(uri != null && uri.toString().contains("m3u")) {
+            AbstractPatch.Result result = NetworkAPI.patch(uri);
+            URI base = result.uri;
+
+            try (BufferedInputStream in = new BufferedInputStream(base.toURL().openStream());
+                 BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+
+                String line;
+                while((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("#")) {
+                        continue;
+                    }
+                    uris.add(base.resolve(line));
+                }
+            } catch (IOException ignored) {}
+        }
+        return uris;
     }
 
     public PositionHorizontal getPosX() {
@@ -101,7 +160,11 @@ public class DisplayData {
     }
 
     public void save(NBTTagCompound nbt, DisplayTileEntity tile) {
-        nbt.setString(URL, isUriInvalid() ? "" : uri.toString());
+        nbt.setString(URL, uri == null ? "" : uri.toString());
+        // EXPERIMENTAL: LISTING
+        nbt.setString(URI_LIST, WaterFramesMod.composeURIString(this.uris));
+        nbt.setInteger(URI_INDEX, uri_index);
+        // HERE ENDS
         nbt.setString(PLAYER_UUID, uuid.toString());
         nbt.setBoolean(ACTIVE, active);
         if (tile.caps.resizes()) {
@@ -121,8 +184,9 @@ public class DisplayData {
         nbt.setInteger(VOL_RANGE_MAX, maxVolumeDistance);
         nbt.setBoolean(PAUSED, paused);
         nbt.setBoolean(MUTED, muted);
-        nbt.setLong(TICK, tick);
-        nbt.setLong(TICK_MAX, tickMax);
+        nbt.setBoolean(LIT, lit);
+        nbt.setInteger(TICK, tick);
+        nbt.setInteger(TICK_MAX, tickMax);
         nbt.setBoolean(LOOP, loop);
 
         if (tile.caps.renderBehind()) {
@@ -140,6 +204,11 @@ public class DisplayData {
     public void load(NBTTagCompound nbt, DisplayTileEntity tile) {
         String url = nbt.getString(URL);
         this.uri = url.isEmpty() ? null : WaterFramesMod.createURI(url);
+        // EXPERIMENTAL: LISTING
+        this.uris = WaterFramesMod.decomposeURIString(nbt.getString(URI_LIST));
+        this.uri_index = nbt.getInteger(URI_INDEX);
+        // EXPERIMENTAL ENDS
+
         this.uuid = nbt.hasKey(PLAYER_UUID) ? UUID.fromString(nbt.getString(PLAYER_UUID)) : this.uuid;
         this.active = nbt.hasKey(ACTIVE) ? nbt.getBoolean(ACTIVE) : this.active;
         if (tile.caps.resizes()) {
@@ -159,6 +228,7 @@ public class DisplayData {
         this.minVolumeDistance = nbt.hasKey(VOL_RANGE_MIN) ? Math.min(nbt.getInteger(VOL_RANGE_MIN), this.maxVolumeDistance) : this.minVolumeDistance;
         this.paused = nbt.getBoolean(PAUSED);
         this.muted = nbt.getBoolean(MUTED);
+        this.lit = !nbt.hasKey(LIT) || nbt.getBoolean(LIT);
         this.tick = nbt.getInteger(TICK);
         this.tickMax = nbt.hasKey(TICK_MAX) ? nbt.getInteger(TICK_MAX) : this.tickMax;
         this.loop = nbt.getBoolean(LOOP);
@@ -318,6 +388,8 @@ public class DisplayData {
         NBTTagCompound nbt = new NBTTagCompound();
 
         nbt.setString(URL, screen.getURL());
+        nbt.setString(URI_LIST, WaterFramesMod.composeURIString(tryGetPlaylist(WaterFramesMod.createURI(screen.getURL()))));
+        nbt.setInteger(URI_INDEX, 0);
         nbt.setBoolean(ACTIVE, true); // reset
 
         if (tile.caps.resizes()) {
@@ -343,6 +415,8 @@ public class DisplayData {
             nbt.setBoolean("visible", screen.show_model);
         }
 
+        nbt.setBoolean(LIT, screen.lit);
+
         if (tile.caps.renderBehind()) {
             nbt.setBoolean(RENDER_BOTH_SIDES, screen.render_behind);
         }
@@ -359,12 +433,13 @@ public class DisplayData {
         String url = nbt.getString(URL);
         if (WFConfig.canSave(player, url)) {
             final URI uri = WaterFramesMod.createURI(url);
-            if (tile.data.isUriInvalid() || !tile.data.uri.equals(uri)) {
+            if (!tile.data.hasUri() || (tile.data.uri != null && !tile.data.uri.equals(uri))) {
                 tile.data.tick = 0;
                 tile.data.tickMax = -1;
             }
             tile.data.uri = uri;
-            tile.data.uuid = tile.data.isUriInvalid() ? player.getUniqueID() : new UUID(0, 0);
+            tile.data.uris = WaterFramesMod.decomposeURIString(nbt.getString(URI_LIST));
+            tile.data.uuid = tile.data.hasUri() ? player.getUniqueID() : new UUID(0, 0);
             tile.data.active = nbt.getBoolean(ACTIVE);
 
             if (tile.caps.resizes()) {
@@ -393,6 +468,8 @@ public class DisplayData {
             if (tile.canHideModel()) {
                 tile.setVisibility(nbt.getBoolean("visible"));
             }
+
+            tile.data.lit = nbt.getBoolean(LIT);
 
             if (tile.caps.renderBehind()) {
                 tile.data.renderBothSides = nbt.getBoolean(RENDER_BOTH_SIDES);

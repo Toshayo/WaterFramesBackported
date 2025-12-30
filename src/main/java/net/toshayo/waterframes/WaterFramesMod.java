@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.net.URI;
+import java.util.LinkedList;
 
 
 @Mod(
@@ -32,6 +33,7 @@ public class WaterFramesMod {
     public static Block PROJECTOR;
     public static Item REMOTE;
 
+    public static final long SYNC_TIME = 2000L;
 
     @Mod.Instance(MOD_ID)
     public static WaterFramesMod INSTANCE;
@@ -74,6 +76,28 @@ public class WaterFramesMod {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static String composeURIString(LinkedList<URI> s) {
+        final StringBuilder sb = new StringBuilder();
+        for (URI uri: s) {
+            sb.append(uri.toString());
+            if (uri != s.getLast()) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    public static LinkedList<URI> decomposeURIString(String s) {
+        LinkedList<URI> uris = new LinkedList<>();
+        String[] split = s.split("\n");
+        for (String uri: split) {
+            if (uri.isEmpty()) continue;
+            URI u = createURI(uri);
+            if (u != null) uris.add(u);
+        }
+        return uris;
     }
 
     @SuppressWarnings("unused")

@@ -50,7 +50,7 @@ public class TextureDisplay {
         this.xCoord = tile.xCoord;
         this.yCoord = tile.yCoord;
         this.zCoord = tile.zCoord;
-        if(tile.data.uri.toString().startsWith("camera://")) {
+        if(tile.data.getUri().toString().startsWith("camera://")) {
             displayMode = Mode.CAMERA;
         } else {
             if (this.imageCache.isVideo()) {
@@ -60,7 +60,7 @@ public class TextureDisplay {
     }
 
     private void switchVideoMode() {
-        if(tile.data.uri.toString().startsWith("camera://")) {
+        if(tile.data.getUri().toString().startsWith("camera://")) {
             displayMode = Mode.CAMERA;
             return;
         }
@@ -100,7 +100,7 @@ public class TextureDisplay {
         this.mediaPlayer.setRepeatMode(this.tile.data.loop);
         this.mediaPlayer.setPauseMode(this.tile.data.paused);
         this.mediaPlayer.setMuteMode(this.tile.data.muted);
-        this.mediaPlayer.start(this.tile.data.uri);
+        this.mediaPlayer.start(this.tile.data.getUri());
         DisplayControl.add(this);
     }
 
@@ -136,7 +136,7 @@ public class TextureDisplay {
             case AUDIO:
                 return 0;
             case CAMERA:
-                String cameraPos = tile.data.uri.toString().substring("camera://".length());
+                String cameraPos = tile.data.getUri().toString().substring("camera://".length());
                 if(cameraPos.startsWith("/")) {
                     cameraPos = cameraPos.substring(1);
                 }
@@ -185,10 +185,11 @@ public class TextureDisplay {
         return switch (displayMode) {
             case PICTURE -> {
                 ImageRenderer renderer = this.imageCache.getRenderer();
-                if(renderer != null){
-                    yield renderer.duration == 0 ? 20 * 20 : renderer.duration;
+                if (renderer != null) {
+                    yield renderer.duration == 0 ? 20 * 10 : renderer.duration;
+                } else {
+                    yield 0;
                 }
-                yield 0;
             }
             case VIDEO -> this.mediaPlayer.getDuration();
             case AUDIO, CAMERA -> 0;
@@ -227,7 +228,9 @@ public class TextureDisplay {
     }
 
     public void forceSeek() {
-        this.mediaPlayer.seekTo(MathAPI.tickToMs(tile.data.tick));
+        if(mediaPlayer != null) {
+            this.mediaPlayer.seekTo(MathAPI.tickToMs(tile.data.tick));
+        }
     }
 
     public void tick(int x, int y, int z) {
@@ -288,7 +291,7 @@ public class TextureDisplay {
                 }
                 break;
             case CAMERA:
-                String cameraPos = tile.data.uri.toString().substring("camera://".length());
+                String cameraPos = tile.data.getUri().toString().substring("camera://".length());
                 if(cameraPos.startsWith("/")) {
                     cameraPos = cameraPos.substring(1);
                 }

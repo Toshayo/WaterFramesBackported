@@ -80,7 +80,7 @@ public abstract class DisplayBlock extends Block implements ITileEntityProvider 
     public int getLightValue(IBlockAccess world, int x, int y, int z) {
         TileEntity tile = world.getTileEntity(x, y, z);
         if(tile instanceof DisplayTileEntity) {
-            return ((DisplayTileEntity) tile).isLit() ? (int)(15 * ((DisplayTileEntity) tile).data.brightness / 255F) : 0;
+            return ((DisplayTileEntity) tile).getLightLevel();
         }
         return 0;
     }

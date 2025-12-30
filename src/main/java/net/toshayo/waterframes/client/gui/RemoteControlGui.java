@@ -71,11 +71,13 @@ public class RemoteControlGui extends GuiScreen {
                 button -> tile.volumeUp()
         ));
 
-        widgets.add(new IconButton(
+        IconButton channelUp = new IconButton(
                 this, IconStyles.CHANNEL_UP,
                 x + WIDTH - 30, y + 10 + fontRendererObj.FONT_HEIGHT * 4, 20, 20,
-                button -> {}
-        ));
+                button -> tile.prevUri()
+        );
+        channelUp.setEnabled(!this.tile.data.uris.isEmpty());
+        widgets.add(channelUp);
 
         widgets.add(new IconButton(
                 this, IconStyles.VOLUME_DOWN,
@@ -91,11 +93,13 @@ public class RemoteControlGui extends GuiScreen {
                 }
         ));
 
-        widgets.add(new IconButton(
+        IconButton channelDown = new IconButton(
                 this, IconStyles.CHANNEL_DOWN,
                 x + WIDTH - 30, (int)(y + 10 + fontRendererObj.FONT_HEIGHT * 6.5), 20, 20,
-                button -> {}
-        ));
+                button -> tile.nextUri()
+        );
+        channelDown.setEnabled(!this.tile.data.uris.isEmpty());
+        widgets.add(channelDown);
 
         widgets.add(new IconButton(
                 this, IconStyles.PLAY,

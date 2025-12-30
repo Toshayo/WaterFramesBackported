@@ -41,14 +41,14 @@ public class WaterFramesCommand extends CommandBase {
 
         switch (args[0]) {
             case "status":
-                sender.addChatMessage(new ChatComponentText("URL: " + tile.data.uri.toString()));
+                sender.addChatMessage(new ChatComponentText("URL: " + tile.data.getUri().toString()));
                 break;
             case "url":
-                if (!tile.data.uri.toString().equals(args[1])) {
+                if (!tile.data.getUri().toString().equals(args[1])) {
                     tile.data.tick = 0;
                     tile.data.tickMax = -1;
                 }
-                tile.data.uri = WaterFramesMod.createURI(args[1]);
+                tile.data.setUri(WaterFramesMod.createURI(args[1]));
                 tile.data.uuid = sender instanceof EntityPlayer ? ((EntityPlayer) sender).getUniqueID() : DisplayData.NIL_UUID;
                 break;
             case "width":

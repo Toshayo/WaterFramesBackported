@@ -1,8 +1,11 @@
 package net.toshayo.waterframes.proxy;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -50,6 +53,8 @@ public class CommonProxy {
 
         PacketDispatcher.registerPackets();
         NetworkRegistry.INSTANCE.registerGuiHandler(WaterFramesMod.INSTANCE, new GuiHandler());
+
+        FMLCommonHandler.instance().bus().register(this);
     }
 
     public void onInit(FMLInitializationEvent event) {
@@ -157,7 +162,7 @@ public class CommonProxy {
         if (tile == null) {
             return;
         }
-        if (tile.data.isUriInvalid()) {
+        if (!tile.data.hasUri()) {
             tile.data.tickMax = -1;
             tile.data.tick = 0;
         } else {
@@ -212,5 +217,12 @@ public class CommonProxy {
             return;
         }
         DisplayData.sync(displayTile, ctx.getServerHandler().playerEntity, message.nbt);
+    }
+
+    @SubscribeEvent
+    public void onTickLast(TickEvent.ServerTickEvent event) {
+        if(event.phase == TickEvent.Phase.END) {
+            DisplayTileEntity.clearLagTickTime();
+        }
     }
 }

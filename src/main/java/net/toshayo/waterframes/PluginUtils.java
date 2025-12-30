@@ -2,6 +2,7 @@ package net.toshayo.waterframes;
 
 import com.sun.jna.Platform;
 import me.eigenraven.lwjgl3ify.api.Lwjgl3Aware;
+import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 import net.toshayo.waterframes.utils.ExtensionsMimeTypes;
 import org.apache.commons.io.FilenameUtils;
 import org.lwjgl.system.MemoryUtil;
@@ -61,5 +62,35 @@ public class PluginUtils {
 
     private static String getMimeByExtension(String extension) {
         return ExtensionsMimeTypes.MIME_BY_EXTENSION.getOrDefault(extension, "content/unknown");
+    }
+
+
+    private static long wf$lastWarnTime = 0;
+    private static long wf$lastMillisTime = 0;
+    private static long wf$timeStack = 0;
+    public static long MinecraftServer_run_getSystemTimeMillis_0(final long v) {
+        wf$lastMillisTime = v;
+        return v;
+    }
+
+    public static long MinecraftServer_run_getSystemTimeMillis_1(final long millis) {
+        if (!WFConfig.useLagTickCorrection()) {
+            return millis;
+        }
+        long time = millis - wf$lastMillisTime;
+        if (time > 100) // 50ms is 1 tick
+            wf$timeStack += time;
+
+        if (wf$timeStack > WaterFramesMod.SYNC_TIME) {
+            DisplayTileEntity.setLagTickTime(wf$timeStack);
+            if (millis - wf$lastWarnTime > 15000) {
+                WaterFramesMod.LOGGER.warn("Server seems overloading, jumping {}ms or {} ticks", wf$timeStack, wf$timeStack / 50L);
+                wf$lastWarnTime = millis;
+            }
+            wf$timeStack %= WaterFramesMod.SYNC_TIME;
+        }
+
+        wf$lastMillisTime = millis;
+        return millis;
     }
 }

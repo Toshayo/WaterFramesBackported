@@ -1,5 +1,6 @@
 package net.toshayo.waterframes.client.render.tileentity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.GL11;
 import toshayopack.team.creative.creativecore.common.util.math.AlignedBox;
@@ -10,11 +11,24 @@ public class RenderCore {
     private static final Tessellator tesselator = Tessellator.instance;
 
     public static void bufferBegin() {
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glCullFace(GL11.GL_BACK);
+
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+
+        Minecraft.getMinecraft().entityRenderer.enableLightmap(0);
         tesselator.startDrawingQuads();
     }
 
     public static void bufferEnd() {
         tesselator.draw();
+        Minecraft.getMinecraft().entityRenderer.disableLightmap(0);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glDisable(GL11.GL_CULL_FACE);
     }
 
     public static void bindTex(int texture) {
@@ -37,8 +51,8 @@ public class RenderCore {
 
     private static void vertex(AlignedBox box, BoxFace face, BoxCorner corner, boolean flipX, boolean flipY, int a, int r, int g, int b) {
         /*Vec3 normal = face.facing.normal;
-        tesselator.setNormal((float) normal.xCoord, (float) normal.yCoord, (float) normal.zCoord);
-        tesselator.setColorRGBA(r, g, b, a);*/
+        tesselator.setNormal((float) normal.xCoord, (float) normal.yCoord, (float) normal.zCoord);*/
+        tesselator.setColorRGBA(r, g, b, a);
         tesselator.addVertexWithUV(
                 box.get(corner.x),
                 box.get(corner.y),

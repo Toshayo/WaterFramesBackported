@@ -5,11 +5,13 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import java.nio.IntBuffer;
 
-public class MemoryAllocVisitor extends ClassVisitor {
+
+public class RenderAPIVisitor extends ClassVisitor {
     private final String transformedName;
 
-    public MemoryAllocVisitor(String transformedName, ClassVisitor cv) {
+    public RenderAPIVisitor(String transformedName, ClassVisitor cv) {
         super(Opcodes.ASM5, cv);
         this.transformedName = transformedName;
     }
@@ -21,7 +23,7 @@ public class MemoryAllocVisitor extends ClassVisitor {
             return new MethodVisitor(Opcodes.ASM5, methodVisitor) {
                 @Override
                 public void visitCode() {
-                    WaterFramesPlugin.LOGGER.info("Patching {}.{}{}", transformedName, methodName, desc);
+                    WaterFramesPlugin.LOGGER.info("Patching {}.{}{} to use LWJGL3ify compatible calls", transformedName, methodName, desc);
                     switch (methodName) {
                         case "createByteBuffer":
                             mv.visitVarInsn(Opcodes.ILOAD, 0);
@@ -41,6 +43,19 @@ public class MemoryAllocVisitor extends ClassVisitor {
                     } else {
                         mv.visitInsn(Opcodes.ARETURN);
                     }
+                }
+            };
+        } else if(methodName.equals("deleteTexture") && desc.equals("([I)V")) {
+            MethodVisitor methodVisitor = cv.visitMethod(access, methodName, desc, signature, exceptions);
+            return new MethodVisitor(Opcodes.ASM5, methodVisitor) {
+                @Override
+                public void visitCode() {
+                    WaterFramesPlugin.LOGGER.info("Patching {}.{}{} to use correct method signature", transformedName, methodName, desc);
+
+                    mv.visitVarInsn(Opcodes.ALOAD, 0);
+                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/nio/IntBuffer", "wrap", "([I)Ljava/nio/IntBuffer;", false);
+                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "org/lwjgl/opengl/GL11", "glDeleteTextures", "(Ljava/nio/IntBuffer;)V", false);
+                    mv.visitInsn(Opcodes.RETURN);
                 }
             };
         }

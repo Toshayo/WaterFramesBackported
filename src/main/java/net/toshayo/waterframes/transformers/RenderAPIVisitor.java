@@ -1,6 +1,7 @@
 package net.toshayo.waterframes.transformers;
 
 import net.toshayo.waterframes.WaterFramesPlugin;
+import org.lwjgl.BufferUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -50,11 +51,10 @@ public class RenderAPIVisitor extends ClassVisitor {
             return new MethodVisitor(Opcodes.ASM5, methodVisitor) {
                 @Override
                 public void visitCode() {
-                    WaterFramesPlugin.LOGGER.info("Patching {}.{}{} to use correct method signature", transformedName, methodName, desc);
+                    WaterFramesPlugin.LOGGER.info("Patching {}.{}{} to use buffer instead of array", transformedName, methodName, desc);
 
                     mv.visitVarInsn(Opcodes.ALOAD, 0);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/nio/IntBuffer", "wrap", "([I)Ljava/nio/IntBuffer;", false);
-                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "org/lwjgl/opengl/GL11", "glDeleteTextures", "(Ljava/nio/IntBuffer;)V", false);
+                    mv.visitMethodInsn(Opcodes.INVOKESTATIC, "net/toshayo/waterframes/PluginUtils", "deleteTextures", desc, false);
                     mv.visitInsn(Opcodes.RETURN);
                 }
             };

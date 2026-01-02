@@ -5,11 +5,14 @@ import me.eigenraven.lwjgl3ify.api.Lwjgl3Aware;
 import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 import net.toshayo.waterframes.utils.ExtensionsMimeTypes;
 import org.apache.commons.io.FilenameUtils;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 import java.net.URI;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 @Lwjgl3Aware
 public class PluginUtils {
@@ -62,6 +65,12 @@ public class PluginUtils {
 
     private static String getMimeByExtension(String extension) {
         return ExtensionsMimeTypes.MIME_BY_EXTENSION.getOrDefault(extension, "content/unknown");
+    }
+
+    public static void deleteTextures(int[] textures) {
+        IntBuffer buffer = BufferUtils.createIntBuffer(textures.length);
+        buffer.put(textures).flip();
+        GL11.glDeleteTextures(buffer);
     }
 
 

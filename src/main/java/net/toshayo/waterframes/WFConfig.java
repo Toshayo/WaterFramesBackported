@@ -70,6 +70,7 @@ public class WFConfig {
     private static boolean useLightsOnPlay = true;
     private static boolean forceLightOnPlay = false;
     private static boolean useLagTickCorrection = true;
+    private static int lagTickCorrectionWarningThreshold = 60;
     private static boolean useRedstone = true;
     private static boolean useMasterModeOnRedsone = false;
     // REMOTE CONTROL
@@ -121,6 +122,7 @@ public class WFConfig {
             useLightsOnPlay = config.getBoolean("useLightsOnPlay", "block_behavior", true, "Enable light feature on frames while is playing");
             forceLightOnPlay = config.getBoolean("forceLightOnPlay", "block_behavior", false, "Forces light feature on frames while is playing. Requires lightOnPlay be true");
             useLagTickCorrection = config.getBoolean("lagTickCorrection", "block_behavior", true, "Enable lag tick time correction. Helps when server is too laggy and playback is regressing in time. Disable if causes problems");
+            lagTickCorrectionWarningThreshold = config.getInt("lagTickCorrectionWarningThreshold", "block_behavior", 40, 0, Integer.MAX_VALUE, "Amount of ticks skipped that will trigger a warning in server console.");
 
             // redstone
             config.addCustomCategoryComment("redstone", "Redstone interaction options");
@@ -204,6 +206,10 @@ public class WFConfig {
 
     public static boolean useLagTickCorrection() {
         return useLagTickCorrection;
+    }
+
+    public static int lagTickCorrectionWarningThreshold() {
+        return lagTickCorrectionWarningThreshold;
     }
 
     // MULTIMEDIA

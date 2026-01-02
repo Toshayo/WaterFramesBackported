@@ -93,7 +93,9 @@ public class PluginUtils {
         if (wf$timeStack > WaterFramesMod.SYNC_TIME) {
             DisplayTileEntity.setLagTickTime(wf$timeStack);
             if (millis - wf$lastWarnTime > 15000) {
-                WaterFramesMod.LOGGER.warn("Server seems overloading, jumping {}ms or {} ticks", wf$timeStack, wf$timeStack / 50L);
+                if(wf$timeStack / 50L > WFConfig.lagTickCorrectionWarningThreshold()) {
+                    WaterFramesMod.LOGGER.warn("Server seems overloaded, jumping {}ms or {} ticks", wf$timeStack, wf$timeStack / 50L);
+                }
                 wf$lastWarnTime = millis;
             }
             wf$timeStack %= WaterFramesMod.SYNC_TIME;

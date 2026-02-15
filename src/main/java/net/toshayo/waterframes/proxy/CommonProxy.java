@@ -12,14 +12,12 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.toshayo.waterframes.DisplayData;
 import net.toshayo.waterframes.WFConfig;
 import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.blocks.*;
-import net.toshayo.waterframes.client.GuiHandler;
 import net.toshayo.waterframes.items.RemoteControlItem;
 import net.toshayo.waterframes.network.PacketDispatcher;
 import net.toshayo.waterframes.network.packets.*;
@@ -46,7 +44,6 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TVBoxTileEntity.class, new ResourceLocation(WaterFramesMod.MOD_ID, "tv_box"));
 
         PacketDispatcher.registerPackets();
-        NetworkRegistry.INSTANCE.registerGuiHandler(WaterFramesMod.INSTANCE, new GuiHandler());
     }
 
     @SubscribeEvent
@@ -192,4 +189,6 @@ public class CommonProxy {
         }
         DisplayData.sync(displayTile, ctx.getServerHandler().player, message.nbt);
     }
+
+    public void handlePacket(OpenGuiPacket message, MessageContext ctx) {}
 }

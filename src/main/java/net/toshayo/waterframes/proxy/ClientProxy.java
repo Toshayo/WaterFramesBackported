@@ -19,12 +19,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.client.DisplayControl;
 import net.toshayo.waterframes.client.FrameBakedModel;
+import net.toshayo.waterframes.client.gui.DisplayGui;
+import net.toshayo.waterframes.client.gui.RemoteControlGui;
 import net.toshayo.waterframes.client.render.tileentity.DisplayRenderer;
 import net.toshayo.waterframes.network.PacketDispatcher;
-import net.toshayo.waterframes.network.packets.AbstractDisplayNetworkPacket;
-import net.toshayo.waterframes.network.packets.MutePacket;
-import net.toshayo.waterframes.network.packets.PausePacket;
-import net.toshayo.waterframes.network.packets.RequestDisplayInfoPacket;
+import net.toshayo.waterframes.network.packets.*;
 import net.toshayo.waterframes.tileentities.*;
 import org.watermedia.WaterMedia;
 import org.watermedia.loaders.ILoader;
@@ -139,5 +138,23 @@ public class ClientProxy extends CommonProxy {
                 message.posX, message.posY, message.posZ,
                 displayTile.display.width(), displayTile.display.height()
         ));
+    }
+
+    @Override
+    public void handlePacket(OpenGuiPacket message, MessageContext ctx) {
+        TileEntity tile = Minecraft.getMinecraft().player.world.getTileEntity(new BlockPos(message.posX, message.posY, message.posZ));
+        if (!(tile instanceof DisplayTileEntity)) {
+            return;
+        }
+        Minecraft.getMinecraft().addScheduledTask(() -> {
+            switch (message.id) {
+                case 0:
+                    Minecraft.getMinecraft().displayGuiScreen(new DisplayGui(((DisplayTileEntity) tile)));
+                    break;
+                case 1:
+                    Minecraft.getMinecraft().displayGuiScreen(new RemoteControlGui(((DisplayTileEntity) tile)));
+                    break;
+            }
+        });
     }
 }

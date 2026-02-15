@@ -34,5 +34,6 @@ public class PacketDispatcher {
         wrapper.registerMessage(RequestDisplayInfoPacket.Handler.class, RequestDisplayInfoPacket.class, i++, Side.CLIENT);
 
         wrapper.registerMessage(SyncPacket.Handler.class, SyncPacket.class, i++, Side.SERVER);
+        wrapper.registerMessage(OpenGuiPacket.Handler.class, OpenGuiPacket.class, i++, Side.CLIENT);
     }
 }

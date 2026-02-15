@@ -9,6 +9,7 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -16,7 +17,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.toshayo.waterframes.WaterFramesMod;
+import net.toshayo.waterframes.WFConfig;
+import net.toshayo.waterframes.network.PacketDispatcher;
+import net.toshayo.waterframes.network.packets.OpenGuiPacket;
 import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 
 public abstract class DisplayBlock extends Block implements ITileEntityProvider {
@@ -75,9 +78,12 @@ public abstract class DisplayBlock extends Block implements ITileEntityProvider 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState blockState, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (world.isRemote) {
-            player.openGui(WaterFramesMod.INSTANCE, 0, world, pos.getX(), pos.getY(), pos.getZ());
+            return true;
+        } else if(!player.isSneaking() && WFConfig.canInteractBlock(player)) {
+            PacketDispatcher.wrapper.sendTo(new OpenGuiPacket(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 0), ((EntityPlayerMP) player));
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override

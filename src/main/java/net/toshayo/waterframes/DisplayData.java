@@ -114,11 +114,14 @@ public class DisplayData {
     }
 
     public boolean hasUri() { return this.uri != null || !this.uris.isEmpty(); }
-    public URI getUri() { return this.uris.isEmpty() ? this.uri : this.uris.get(this.uri_index); }
+    public URI getUri() {
+        return uris.isEmpty() ? uri : (uri_index >= 0 && uri_index < uris.size() ? uris.get(uri_index) : uris.get(0));
+    }
 
     public void setUri(URI newUri) {
         this.uri = newUri;
         this.uris = tryGetPlaylist(newUri);
+        this.uri_index = 0;
     }
 
     private static LinkedList<URI> tryGetPlaylist(URI uri) {

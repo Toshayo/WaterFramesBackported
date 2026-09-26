@@ -17,6 +17,15 @@ public class WATERMeDIALoadingPreventionTransformer implements IClassTransformer
             classReader.accept(new ModContainerFactoryVisitor(classWriter), ClassReader.EXPAND_FRAMES);
 
             return classWriter.toByteArray();
+        } else if(transformedName.equals("com.cleanroommc.discovery.IdentifiedMods")) {
+            ClassReader classReader = new ClassReader(basicClass);
+            ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+
+            WaterFramesPlugin.LOGGER.info("Disabling WATERMeDIA loading in Cleanroom");
+
+            classReader.accept(new IdentifiedModsVisitor(classWriter), ClassReader.EXPAND_FRAMES);
+
+            return classWriter.toByteArray();
         }
         return basicClass;
     }
@@ -56,6 +65,31 @@ public class WATERMeDIALoadingPreventionTransformer implements IClassTransformer
                 };
             }
             return methodVisitor;
+        }
+    }
+
+    private static class IdentifiedModsVisitor extends ClassVisitor {
+        public IdentifiedModsVisitor(ClassVisitor cv) {
+            super(Opcodes.ASM5, cv);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            if(name.equals("<init>")) {
+                MethodVisitor methodVisitor = cv.visitMethod(access, name, descriptor, signature, exceptions);
+                return new MethodVisitor(Opcodes.ASM5, methodVisitor) {
+                    @Override
+                    public void visitCode() {
+                        WaterFramesPlugin.LOGGER.info("Patching Cleanroom's IdentifiedMods");
+                        super.visitCode();
+
+                        mv.visitVarInsn(Opcodes.ALOAD, 1);
+                        mv.visitVarInsn(Opcodes.ALOAD, 2);
+                        mv.visitMethodInsn(Opcodes.INVOKESTATIC, "net/toshayo/waterframes/PluginUtils", "onModList", "(Ljava/util/List;Ljava/util/List;)V", false);
+                    }
+                };
+            }
+            return super.visitMethod(access, name, descriptor, signature, exceptions);
         }
     }
 }

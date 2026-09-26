@@ -1,6 +1,7 @@
 package net.toshayo.waterframes;
 
 import me.eigenraven.lwjgl3ify.api.Lwjgl3Aware;
+import net.minecraftforge.fml.common.ModContainer;
 import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 import net.toshayo.waterframes.utils.ExtensionsMimeTypes;
 import org.apache.commons.io.FilenameUtils;
@@ -8,9 +9,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
+import java.util.function.Predicate;
 
 @Lwjgl3Aware
 public class PluginUtils {
@@ -78,5 +82,15 @@ public class PluginUtils {
 
         wf$lastMillisTime = millis;
         return millis;
+    }
+
+    public static void onModList(List<ModContainer> mods, List<File> nonModLibs) {
+        Predicate<ModContainer> isWaterMedia = mod -> mod.getModId().equals("watermedia") || mod.getModId().equals("watermedia_youtube_plugin");
+        for(ModContainer mod : mods) {
+            if(isWaterMedia.test(mod)) {
+                nonModLibs.add(mod.getSource());
+            }
+        }
+        mods.removeIf(isWaterMedia);
     }
 }

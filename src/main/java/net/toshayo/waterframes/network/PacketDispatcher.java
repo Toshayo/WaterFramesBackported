@@ -35,5 +35,11 @@ public class PacketDispatcher {
 
         wrapper.registerMessage(SyncPacket.Handler.class, SyncPacket.class, i++, Side.SERVER);
         wrapper.registerMessage(OpenGuiPacket.Handler.class, OpenGuiPacket.class, i++, Side.CLIENT);
+
+        wrapper.registerMessage(NextPacket.Handler.class, NextPacket.class, i++, Side.SERVER);
+        wrapper.registerMessage(NextPacket.Handler.class, NextPacket.class, i++, Side.CLIENT);
+
+        wrapper.registerMessage(PreviousPacket.Handler.class, PreviousPacket.class, i++, Side.SERVER);
+        wrapper.registerMessage(PreviousPacket.Handler.class, PreviousPacket.class, i++, Side.CLIENT);
     }
 }

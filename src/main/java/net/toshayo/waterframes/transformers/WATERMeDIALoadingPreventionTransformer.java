@@ -1,6 +1,7 @@
 package net.toshayo.waterframes.transformers;
 
 import net.minecraft.launchwrapper.IClassTransformer;
+import net.toshayo.waterframes.WaterFramesPlugin;
 import org.objectweb.asm.*;
 
 public class WATERMeDIALoadingPreventionTransformer implements IClassTransformer {
@@ -10,6 +11,8 @@ public class WATERMeDIALoadingPreventionTransformer implements IClassTransformer
         if(transformedName.equals("net.minecraftforge.fml.common.ModContainerFactory")) {
             ClassReader classReader = new ClassReader(basicClass);
             ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+
+            WaterFramesPlugin.LOGGER.info("Disabling WATERMeDIA loading");
 
             classReader.accept(new ModContainerFactoryVisitor(classWriter), ClassReader.EXPAND_FRAMES);
 
@@ -34,16 +37,18 @@ public class WATERMeDIALoadingPreventionTransformer implements IClassTransformer
                     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
                         super.visitMethodInsn(opcode, owner, name, desc, itf);
                         if(!injected && owner.equals("org/apache/logging/log4j/Logger") && name.equals("debug")) {
-                            Label continueLabel = new Label();
-                            mv.visitLdcInsn("org.watermedia.loaders.ForgeLoader");
-                            mv.visitVarInsn(Opcodes.ALOAD, 4);
-                            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
-                            mv.visitJumpInsn(Opcodes.IFEQ, continueLabel);
+                            for(String className : new String[]{"org.watermedia.loaders.ForgeMCLoader", "org.watermedia.youtube.loaders.ForgeMCLoader"}) {
+                                Label continueLabel = new Label();
+                                mv.visitLdcInsn(className);
+                                mv.visitVarInsn(Opcodes.ALOAD, 4);
+                                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+                                mv.visitJumpInsn(Opcodes.IFEQ, continueLabel);
 
-                            mv.visitInsn(Opcodes.ACONST_NULL);
-                            mv.visitInsn(Opcodes.ARETURN);
+                                mv.visitInsn(Opcodes.ACONST_NULL);
+                                mv.visitInsn(Opcodes.ARETURN);
 
-                            mv.visitLabel(continueLabel);
+                                mv.visitLabel(continueLabel);
+                            }
 
                             injected = true;
                         }

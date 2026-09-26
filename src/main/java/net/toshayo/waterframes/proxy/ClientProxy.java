@@ -28,6 +28,7 @@ import net.toshayo.waterframes.tileentities.*;
 import org.watermedia.WaterMedia;
 import org.watermedia.loaders.ILoader;
 import org.watermedia.videolan4j.tools.Version;
+import org.watermedia.youtube.WaterMediaYT;
 
 public class ClientProxy extends CommonProxy {
     @Override
@@ -35,19 +36,13 @@ public class ClientProxy extends CommonProxy {
         super.preInit(event);
 
         WaterFramesMod.LOGGER.info("Using WATERMeDIA version {}", WaterMedia.VERSION);
-        final Version minVersion = new Version("2.1.24");
+        final Version minVersion = new Version("2.1.37");
         if(!new Version(WaterMedia.VERSION).atLeast(minVersion)) {
             throw new RuntimeException("WaterMedia " + WaterMedia.VERSION + " is too old, please update the mod");
         }
-        try {
-            Class.forName("com.sun.jna.Platform");
-        } catch (ClassNotFoundException ignored) {
-            throw new RuntimeException("JNA library missing!\r\nPlease download the library from the two links (jna and jna-platform) and put the jars into mods folder.\r\n" +
-                    "- https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.10.0/jna-5.10.0.jar\r\n" +
-                    "- https://repo1.maven.org/maven2/net/java/dev/jna/jna-platform/5.10.0/jna-platform-5.10.0.jar\r\n");
-        }
         WaterMedia.prepare(ILoader.DEFAULT).start();
         MinecraftForge.EVENT_BUS.register(this);
+        WaterMediaYT.start();
     }
 
     @Override
@@ -118,21 +113,18 @@ public class ClientProxy extends CommonProxy {
     public void handlePacket(PausePacket message, MessageContext ctx) {
         super.handlePacket(message, ctx);
         DisplayTileEntity tile = WaterFramesMod.proxy.getDisplayTileEntityForPacket(message, ctx);
-        if (tile == null) {
+        if (tile == null || tile.display == null) {
             return;
         }
-        if (tile.display != null) { // COPYPASTED from WATERFrAMES TODO: this is redundant, but i have no time to debug this
-            tile.display.setPauseMode(message.paused);
-        }
+        tile.display.setPauseMode(message.paused);
     }
 
     @Override
     public void handlePacket(RequestDisplayInfoPacket message, MessageContext ctx) {
         TileEntity tile = Minecraft.getMinecraft().player.world.getTileEntity(new BlockPos(message.posX, message.posY, message.posZ));
-        if (!(tile instanceof DisplayTileEntity)) {
+        if (!(tile instanceof DisplayTileEntity displayTile)) {
             return;
         }
-        DisplayTileEntity displayTile = (DisplayTileEntity) tile;
         PacketDispatcher.wrapper.sendToServer(new RequestDisplayInfoPacket(
                 tile.getWorld().provider.getDimension(),
                 message.posX, message.posY, message.posZ,
@@ -156,5 +148,14 @@ public class ClientProxy extends CommonProxy {
                     break;
             }
         });
+    }
+
+    @Override
+    public void handlePacket(TimePacket message, MessageContext ctx) {
+        super.handlePacket(message, ctx);
+        DisplayTileEntity tile = WaterFramesMod.proxy.getDisplayTileEntityForPacket(message, ctx);
+        if (tile.display != null) {
+            tile.display.forceSeek();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package net.toshayo.waterframes.client.render.tileentity;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -13,12 +14,26 @@ public class RenderCore {
     private static BufferBuilder buffer;
 
     public static void bufferBegin() {
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glCullFace(GL11.GL_BACK);
+
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+
+        Minecraft.getMinecraft().entityRenderer.enableLightmap();
+
         buffer = Tessellator.getInstance().getBuffer();
         buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
     }
 
     public static void bufferEnd() {
         Tessellator.getInstance().draw();
+        Minecraft.getMinecraft().entityRenderer.disableLightmap();
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glDisable(GL11.GL_CULL_FACE);
         buffer = null;
     }
 

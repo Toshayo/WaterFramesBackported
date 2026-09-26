@@ -9,6 +9,7 @@ import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 import org.watermedia.api.image.ImageAPI;
 import org.watermedia.api.image.ImageCache;
+import org.watermedia.api.image.ImageRenderer;
 import org.watermedia.api.math.MathAPI;
 import org.watermedia.api.player.videolan.VideoPlayer;
 import org.watermedia.videolan4j.player.base.State;
@@ -89,29 +90,21 @@ public class TextureDisplay {
     }
 
     public int width() {
-        switch (displayMode) {
-            case PICTURE:
-                return this.imageCache.getRenderer() != null ? this.imageCache.getRenderer().width : 1;
-            case VIDEO:
-                return this.mediaPlayer.width();
-            case AUDIO:
-                return 0;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE -> this.imageCache.getRenderer() != null ? this.imageCache.getRenderer().width : 1;
+            case VIDEO -> this.mediaPlayer.width();
+            case AUDIO -> 0;
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     public int height() {
-        switch (displayMode) {
-            case PICTURE:
-                return this.imageCache.getRenderer() != null ? this.imageCache.getRenderer().height : 1;
-            case VIDEO:
-                return this.mediaPlayer.height();
-            case AUDIO:
-                return 0;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE -> this.imageCache.getRenderer() != null ? this.imageCache.getRenderer().height : 1;
+            case VIDEO -> this.mediaPlayer.height();
+            case AUDIO -> 0;
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     public int texture() {
@@ -132,16 +125,6 @@ public class TextureDisplay {
         }
     }
 
-    public void preRender() {
-        switch (displayMode) {
-            case PICTURE:
-                break;
-            case VIDEO:
-                this.mediaPlayer.preRender();
-                break;
-        }
-    }
-
     public int getTextureId() {
         return texture();
     }
@@ -151,43 +134,39 @@ public class TextureDisplay {
     }
 
     public long duration() {
-        switch (displayMode) {
-            case PICTURE:
-                return this.imageCache.getRenderer() != null ? this.imageCache.getRenderer().duration : 0;
-            case VIDEO:
-                return this.mediaPlayer.getDuration();
-            case AUDIO:
-                return 0;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE -> {
+                ImageRenderer renderer = this.imageCache.getRenderer();
+                if (renderer != null) {
+                    yield renderer.duration == 0 ? 20 * 10 : renderer.duration;
+                } else {
+                    yield 0;
+                }
+            }
+            case VIDEO -> this.mediaPlayer.getDuration();
+            case AUDIO -> 0;
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     public boolean canTick() {
-        switch (displayMode) {
-            case PICTURE:
-                return this.imageCache.getStatus().equals(ImageCache.Status.READY);
-            case VIDEO:
-                return this.mediaPlayer.isSafeUse() && this.mediaPlayer.isValid();
-// MISSING IMPL
-            case AUDIO:
-                return this.mediaPlayer.isSafeUse();
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE -> this.imageCache.getStatus().equals(ImageCache.Status.READY);
+            case VIDEO -> this.mediaPlayer.isSafeUse() && this.mediaPlayer.isValid();
+            case AUDIO -> // MISSING IMPL
+                    this.mediaPlayer.isSafeUse();
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     public boolean canRender() {
-        switch (displayMode) {
-            case PICTURE:
-                return (imageCache.getStatus() == ImageCache.Status.READY && !this.imageCache.isVideo() && tile.data.active) || notVideo;
-            case VIDEO:
-                return this.mediaPlayer.isValid() && tile.data.active;
-            case AUDIO:
-                return false;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE ->
+                    (imageCache.getStatus() == ImageCache.Status.READY && !this.imageCache.isVideo() && tile.data.active) || notVideo;
+            case VIDEO -> this.mediaPlayer.isSafeUse() && !this.mediaPlayer.isWaiting() && !this.mediaPlayer.isLoading() && this.mediaPlayer.isReady() && tile.data.active;
+            case AUDIO -> false;
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     public void syncDuration() {
@@ -195,6 +174,13 @@ public class TextureDisplay {
             tile.data.tick = 0;
         }
         tile.syncTime(tile.data.tick, durationInTicks());
+        synced = true;
+    }
+
+    public void forceSeek() {
+        if(mediaPlayer != null) {
+            this.mediaPlayer.seekTo(MathAPI.tickToMs(tile.data.tick));
+        }
     }
 
     public void tick(int x, int y, int z) {
@@ -258,7 +244,6 @@ public class TextureDisplay {
 
         if (!synced && canRender()) {
             syncDuration();
-            synced = true;
         }
     }
 
@@ -280,42 +265,35 @@ public class TextureDisplay {
         if (this.imageCache.getStatus() != ImageCache.Status.READY) {
             return false;
         }
-        switch (displayMode) {
-            case PICTURE:
-                return true;
-            case VIDEO:
-            case AUDIO:
-                return this.imageCache.getStatus() == ImageCache.Status.READY && this.mediaPlayer.isReady();
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE -> true;
+            case VIDEO, AUDIO -> this.imageCache.getStatus() == ImageCache.Status.READY && this.mediaPlayer.isReady();
+        };
     }
 
     public boolean isBuffering() {
-        switch (displayMode) {
-            case PICTURE:
-                return false;
-            case VIDEO:
-            case AUDIO:
-                return mediaPlayer.isBuffering() || mediaPlayer.isLoading() || mediaPlayer.raw().mediaPlayer().status().state() == State.NOTHING_SPECIAL;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE -> false;
+            case VIDEO, AUDIO ->
+                    mediaPlayer.isBuffering() || mediaPlayer.isLoading() || mediaPlayer.raw().mediaPlayer().status().state() == State.NOTHING_SPECIAL;
+        };
+    }
+
+    public boolean isBroken() {
+        return switch (displayMode) {
+            case PICTURE -> this.imageCache == null;
+            case VIDEO, AUDIO -> this.mediaPlayer.isBroken();
+        };
     }
 
     public boolean isNotVideo() {
         if (this.imageCache.getStatus() == ImageCache.Status.FAILED)
             return true;
 
-        switch (displayMode) {
-            case PICTURE:
-                return false;
-            case VIDEO:
-            case AUDIO:
-                return this.mediaPlayer.isBroken();
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE -> false;
+            case VIDEO, AUDIO -> this.mediaPlayer.isBroken();
+        };
     }
 
     public boolean isLoading() {
@@ -323,15 +301,10 @@ public class TextureDisplay {
             return true;
         }
 
-        switch (displayMode) {
-            case PICTURE:
-                return false;
-            case VIDEO:
-            case AUDIO:
-                return this.mediaPlayer.isLoading();
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (displayMode) {
+            case PICTURE -> false;
+            case VIDEO, AUDIO -> this.mediaPlayer.isLoading();
+        };
     }
 
     public boolean isReleased() {

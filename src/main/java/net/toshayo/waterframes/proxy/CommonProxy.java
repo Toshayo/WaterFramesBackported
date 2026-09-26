@@ -7,13 +7,17 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 import net.toshayo.waterframes.DisplayData;
 import net.toshayo.waterframes.WFConfig;
 import net.toshayo.waterframes.WaterFramesMod;
@@ -44,6 +48,8 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TVBoxTileEntity.class, new ResourceLocation(WaterFramesMod.MOD_ID, "tv_box"));
 
         PacketDispatcher.registerPackets();
+
+        FMLCommonHandler.instance().bus().register(this);
     }
 
     @SubscribeEvent
@@ -133,7 +139,7 @@ public class CommonProxy {
         if (tile == null) {
             return;
         }
-        if (tile.data.isUriInvalid()) {
+        if (!tile.data.hasUri()) {
             tile.data.tickMax = -1;
             tile.data.tick = 0;
         } else {
@@ -191,4 +197,35 @@ public class CommonProxy {
     }
 
     public void handlePacket(OpenGuiPacket message, MessageContext ctx) {}
+
+    public void handlePacket(NextPacket message, MessageContext ctx) {
+        DisplayTileEntity tile = WaterFramesMod.proxy.getDisplayTileEntityForPacket(message, ctx);
+        if(tile != null) {
+            tile.data.nextUri();
+            tile.markDirty();
+            if(ctx.side == Side.SERVER) {
+                BlockPos pos = tile.getPos();
+                PacketDispatcher.wrapper.sendToAllAround(new NextPacket(tile.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ()), new NetworkRegistry.TargetPoint(tile.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), WFConfig.maxRenDis()));
+            }
+        }
+    }
+
+    public void handlePacket(PreviousPacket message, MessageContext ctx) {
+        DisplayTileEntity tile = WaterFramesMod.proxy.getDisplayTileEntityForPacket(message, ctx);
+        if(tile != null) {
+            tile.data.prevUri();
+            tile.markDirty();
+            if(ctx.side == Side.SERVER) {
+                BlockPos pos = tile.getPos();
+                PacketDispatcher.wrapper.sendToAllAround(new PreviousPacket(tile.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ()), new NetworkRegistry.TargetPoint(tile.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), WFConfig.maxRenDis()));
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onTickLast(TickEvent.ServerTickEvent event) {
+        if(event.phase == TickEvent.Phase.END) {
+            DisplayTileEntity.clearLagTickTime();
+        }
+    }
 }

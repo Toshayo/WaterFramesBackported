@@ -18,6 +18,7 @@ import net.toshayo.waterframes.types.PositionVertical;
 import org.lwjgl.opengl.GL11;
 import toshayopack.team.creative.creativecore.common.util.math.TimeMath;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +37,7 @@ public class DisplayGui extends GuiScreen {
     public PositionHorizontal pos_view_x;
     public PositionVertical pos_view_y;
     public float projection_distance, rotation;
-    public boolean flip_x, flip_y, show_model, render_behind;
+    public boolean flip_x, flip_y, show_model, render_behind, lit;
 
     private final List<AbstractWidget> widgets;
     private GuiTextField urlTbx, widthTbx, heightTbx;
@@ -64,6 +65,7 @@ public class DisplayGui extends GuiScreen {
         projection_distance = tile.data.projectionDistance;
         show_model = tile.isVisible();
         render_behind = tile.data.renderBothSides;
+        lit = tile.data.lit;
         flip_x = tile.data.flipX;
         flip_y = tile.data.flipY;
         volume = tile.data.volume;
@@ -80,7 +82,7 @@ public class DisplayGui extends GuiScreen {
                 WIDTH - 20, fontRenderer.FONT_HEIGHT + 4
         );
         urlTbx.setMaxStringLength(255);
-        urlTbx.setText(tile.data.isUriInvalid() ? "" : tile.data.uri.toString());
+        urlTbx.setText(tile.data.uri != null ? tile.data.uri.toString() : "");
 
         if (tile.caps.resizes()) {
             widthTbx = new GuiTextField(
@@ -90,7 +92,7 @@ public class DisplayGui extends GuiScreen {
                     WIDTH / 3, 18
             ) {
                 @Override
-                public void writeText(String text) {
+                public void writeText(@Nonnull String text) {
                     super.writeText(
                             text.chars()
                                     .filter(c -> ('0' <= c && c <= '9') || (!getText().contains(".") && c == '.'))
@@ -107,7 +109,7 @@ public class DisplayGui extends GuiScreen {
                     WIDTH / 3, 18
             ) {
                 @Override
-                public void writeText(String text) {
+                public void writeText(@Nonnull String text) {
                     super.writeText(
                             text.chars()
                                     .filter(c -> ('0' <= c && c <= '9') || (!getText().contains(".") && c == '.'))
@@ -205,30 +207,35 @@ public class DisplayGui extends GuiScreen {
         }
 
         widgets.add(new Checkbox(
-                x + 10 + 24 + WIDTH / 2, (int)(y + 10 + fontRenderer.FONT_HEIGHT * 13.5),
+                x + 10 + 24 + WIDTH / 2, (int)(y + 10 + fontRenderer.FONT_HEIGHT * 12.25),
                 fontRenderer.getStringWidth(I18n.format("waterframes.gui.flip_x")) + 12, 11,
                 flip_x, "waterframes.gui.flip_x", value -> flip_x = value
         ));
         widgets.add(new Checkbox(
-                x + 24 + WIDTH / 2 + WIDTH / 5, (int)(y + 10 + fontRenderer.FONT_HEIGHT * 13.5),
+                x + 24 + WIDTH / 2 + WIDTH / 5, (int)(y + 10 + fontRenderer.FONT_HEIGHT * 12.25),
                 fontRenderer.getStringWidth(I18n.format("waterframes.gui.flip_y")) + 12, 11,
                 flip_y, "waterframes.gui.flip_y", value -> flip_y = value
         ));
 
         if (tile.canHideModel()) {
             widgets.add(new Checkbox(
-                    x + 10 + 24 + WIDTH / 2, y + 10 + fontRenderer.FONT_HEIGHT * 15,
+                    x + 10 + 24 + WIDTH / 2, (int) (y + 10 + fontRenderer.FONT_HEIGHT * 13.75),
                     fontRenderer.getStringWidth(I18n.format("waterframes.gui.show_model")) + 12, 11,
                     show_model, "waterframes.gui.show_model", value -> show_model = value
             ));
         }
         if (tile.caps.renderBehind()) {
             widgets.add(new Checkbox(
-                    x + 10 + 24 + WIDTH / 2, (int) (y + 10 + fontRenderer.FONT_HEIGHT * 16.5),
+                    x + 10 + 24 + WIDTH / 2, (int) (y + 10 + fontRenderer.FONT_HEIGHT * 15.25),
                     fontRenderer.getStringWidth(I18n.format("waterframes.gui.render_behind")) + 12, 11,
                     render_behind, "waterframes.gui.render_behind", value -> render_behind = value
             ));
         }
+        widgets.add(new Checkbox(
+                x + 10 + 24 + WIDTH / 2, (int) (y + 10 + fontRenderer.FONT_HEIGHT * 16.75),
+                fontRenderer.getStringWidth(I18n.format("waterframes.gui.lit")) + 12, 11,
+                lit, "waterframes.gui.lit", value -> lit = value
+        ));
 
         widgets.add(new Slider(
                 x + 10 + 16 + 5, (int)(y + 10 + fontRenderer.FONT_HEIGHT * 18.5),
@@ -239,7 +246,11 @@ public class DisplayGui extends GuiScreen {
         Slider volumeMinSlider = new Slider(
                 x + 10 + 16 + 5, (int)(y + 10 + fontRenderer.FONT_HEIGHT * 20.5),
                 WIDTH / 3, 16,
-                volume_min, 0, Math.min(volume_max, WFConfig.maxVolDis()), IntValueParser.BLOCKS,
+                volume_min, 0, Math.min(volume_max, WFConfig.maxVolDis()),
+                (value, minValue, maxValue) -> {
+                    String current = TimeMath.timestamp((value > maxValue ? (value != 0L && maxValue != 0L ? value % maxValue : 0L) : value) * 50L);
+                    return current + "/" + TimeMath.timestamp(maxValue * 50L);
+                },
                 value -> volume_min = value.intValue()
         );
         widgets.add(volumeMinSlider);
@@ -435,6 +446,7 @@ public class DisplayGui extends GuiScreen {
     @Override
     public void updateScreen() {
         saveBtn.setEnabled(WFConfig.canSave(Minecraft.getMinecraft().player, urlTbx.getText()));
+        seekbar.setMaxValue(tile.data.tickMax);
         seekbar.setValue(tile.data.tick);
         loopButton.setIcon(tile.data.loop ? IconStyles.REPEAT_ON : IconStyles.REPEAT_OFF);
         playPauseButton.setIcon(tile.data.paused ? IconStyles.PLAY : IconStyles.PAUSE);

@@ -26,8 +26,6 @@ public class DisplayRenderer extends TileEntitySpecialRenderer<DisplayTileEntity
             return;
         }
 
-        display.preRender();
-
         // PREPARE RENDERING
         GL11.glPushMatrix();
         //boolean blendBackup = GL11.glIsEnabled(GL11.GL_BLEND);

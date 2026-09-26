@@ -16,9 +16,9 @@ version = minecraft_version + '_' + mod_version
 group = "${maven_group}"
 archivesBaseName = mod_name
 
-sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17 // Need this here so eclipse task generates correctly.
 compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -85,9 +85,18 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
+    compileOnly("com.github.TwilightFlower:lwjgl3ify:${lwjglifyVersion}") {
+        transitive = false
+    }
+    compileOnly("org.lwjgl:lwjgl-opengl:3.3.3")
+    compileOnly("com.github.TwilightFlower:lwjgl3ify:${lwjglifyVersion}:forgePatches") {
+        transitive = false
+    }
+
     compileOnly "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
 
     implementation "maven.modrinth:watermedia:${watermedia_version}"
+    implementation "maven.modrinth:watermedia-yt-plugin:${watermedia_yt_plugin_version}"
 }
 
 processResources {

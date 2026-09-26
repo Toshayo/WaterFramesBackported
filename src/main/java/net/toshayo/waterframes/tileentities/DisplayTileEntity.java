@@ -13,6 +13,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -35,12 +36,14 @@ import toshayopack.team.creative.creativecore.common.util.math.AlignedBox;
 import toshayopack.team.creative.creativecore.common.util.math.Axis;
 import toshayopack.team.creative.creativecore.common.util.math.Facing;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.URI;
 
 @Optional.InterfaceList({@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "opencomputers")})
 public abstract class DisplayTileEntity extends TileEntity implements SimpleComponent, ITickable {
     private static int lagTickTime;
+    private static int lagTickCompensate;
 
     public final DisplayData data;
     public final DisplayCaps caps;
@@ -54,7 +57,10 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
     @SideOnly(Side.CLIENT)
     private boolean isReleased;
 
-    private boolean isLit, isVisible;
+    // this is more a runtime-block calculation variables, doesn't fix on DisplayData
+    private int lightLevel = 0;
+
+    private boolean isVisible;
 
 
     public DisplayTileEntity(DisplayData data, DisplayCaps caps) {
@@ -62,7 +68,6 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
         this.caps = caps;
 
         blockFacing = EnumFacing.DOWN;
-        isLit = false;
         isVisible = true;
     }
 
@@ -75,6 +80,7 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
     }
 
     public static void clearLagTickTime() {
+        lagTickCompensate += lagTickTime;
         lagTickTime = 0;
     }
 
@@ -90,13 +96,9 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
         return display;
     }
 
-    public boolean isLit() {
-        return isLit;
-    }
-
     @SideOnly(Side.CLIENT)
     public TextureDisplay requestDisplay() {
-        if (!this.data.active || (this.data.isUriInvalid() && display != null)) {
+        if (!this.data.active || (!this.data.hasUri() && display != null)) {
             this.cleanDisplay();
             return null;
         }
@@ -106,13 +108,13 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
             return null;
         }
 
-        if(imageCache == null && data.isUriInvalid()) {
+        if(imageCache == null && !this.data.hasUri()) {
             cleanDisplay();
             return null;
         }
 
-        if (this.imageCache == null || (!data.isUriInvalid() && !this.imageCache.uri.equals(this.data.uri))) {
-            this.imageCache = ImageAPI.getCache(this.data.uri, Minecraft.getMinecraft()::addScheduledTask);
+        if (this.imageCache == null || (this.data.hasUri() && !this.imageCache.uri.equals(this.data.getUri()))) {
+            this.imageCache = ImageAPI.getCache(this.data.getUri(), Minecraft.getMinecraft()::addScheduledTask);
             this.cleanDisplay();
         }
         switch (imageCache.getStatus()) {
@@ -140,6 +142,7 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
         }
     }
 
+    @Nonnull
     @Override
     public NBTTagCompound getUpdateTag() {
         NBTTagCompound nbt = super.getUpdateTag();
@@ -148,7 +151,7 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
     }
 
     @Override
-    public void handleUpdateTag(NBTTagCompound nbt) {
+    public void handleUpdateTag(@Nonnull NBTTagCompound nbt) {
         this.readFromNBT(nbt);
         super.handleUpdateTag(nbt);
         markDirty();
@@ -161,28 +164,27 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
     }
 
     @Override
-    public void onDataPacket(NetworkManager networkManager, SPacketUpdateTileEntity packet) {
+    public void onDataPacket(@Nonnull NetworkManager networkManager, SPacketUpdateTileEntity packet) {
         readFromNBT(packet.getNbtCompound());
         super.onDataPacket(networkManager, packet);
     }
 
+    @Nonnull
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+    public NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt) {
         super.writeToNBT(nbt);
         nbt.setInteger("BLOCK_FACING", blockFacing.ordinal());
         data.save(nbt, this);
-        nbt.setBoolean("IS_LIT", isLit);
         nbt.setBoolean("IS_VISIBLE", isVisible);
         return nbt;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
+    public void readFromNBT(@Nonnull NBTTagCompound nbt) {
         super.readFromNBT(nbt);
         blockFacing = EnumFacing.getFront(nbt.getInteger("BLOCK_FACING"));
         data.load(nbt, this);
 
-        isLit = nbt.getBoolean("IS_LIT");
         isVisible = nbt.getBoolean("IS_VISIBLE");
     }
 
@@ -205,6 +207,7 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
         return this.caps.getBox(this, blockFacing, getAttachedFace(), true);
     }
 
+    @Nonnull
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
         return INFINITE_EXTENT_AABB;
@@ -226,6 +229,14 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
             this.release();
         }
         super.onChunkUnload();
+    }
+
+    public int getLightLevel() {
+        return lightLevel;
+    }
+
+    private int getLightLevel$internal() {
+        return !this.data.hasUri() ? 0 : (int) (((float) this.data.brightness / 255f) * 15);
     }
 
     public void setActive(boolean mode) {
@@ -260,6 +271,14 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
         PacketDispatcher.wrapper.sendToServer(new TimePacket(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), Math.max(data.tick - MathAPI.msToTick(5000), 0), this.data.tickMax));
     }
 
+    public void nextUri() {
+        PacketDispatcher.wrapper.sendToServer(new NextPacket(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ()));
+    }
+
+    public void prevUri() {
+        PacketDispatcher.wrapper.sendToServer(new PreviousPacket(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ()));
+    }
+
     public void syncTime(int tick, int maxTick) {
         PacketDispatcher.wrapper.sendToServer(new TimePacket(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), tick, maxTick));
     }
@@ -276,7 +295,11 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
 
         if (!this.data.paused && this.data.active) {
             if (this.data.tick < this.data.tickMax) {
-                this.data.tick++;
+                if (lagTickCompensate <= 0) {
+                    this.data.tick++;
+                } else {
+                    lagTickCompensate--;
+                }
                 if (lagTickTime != 0 && this.isServer()) {
                     int ticks = this.data.tick + lagTickTime;
                     while (ticks > this.data.tickMax) {
@@ -289,6 +312,9 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
                 if (this.data.loop || this.data.tickMax == -1) {
                     this.data.tick = 0;
                 }
+                if (!this.data.loop && this.data.tickMax != -1) {
+                    this.data.nextUri();
+                }
             }
         }
 
@@ -299,12 +325,15 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
             redstoneOutput = Math.round(((float) this.data.tick / (float) this.data.tickMax) * (14)) + 1;
         }
 
-        boolean lightOnPlay = WFConfig.useLightOnPlay();
-        if (lightOnPlay && isLit == (this.data.isUriInvalid())) {
-            isLit = !this.data.isUriInvalid();
-            updateBlock = true;
-        } else if (!lightOnPlay && isLit) {
-            isLit = false;
+        boolean lightOnPlay = WFConfig.forceLightOnPlay() || WFConfig.useLightOnPlay() && data.lit;
+        int calculatedLight = getLightLevel$internal();
+        if (lightOnPlay) {
+            if(this.lightLevel != calculatedLight) {
+                lightLevel = calculatedLight;
+                updateBlock = true;
+            }
+        } else if(lightLevel > 0) {
+            lightLevel = 0;
             updateBlock = true;
         }
 
@@ -350,6 +379,7 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
     public void markDirty() {
         if (this.world != null) {
             super.markDirty();
+            world.checkLightFor(EnumSkyBlock.BLOCK, pos); // Might be already done in block update, not sure
             world.notifyBlockUpdate(getPos(), world.getBlockState(getPos()), world.getBlockState(getPos()), Constants.BlockFlags.DEFAULT);
             world.notifyNeighborsOfStateChange(pos, getBlockType(), true);
         } else {
@@ -418,18 +448,18 @@ public abstract class DisplayTileEntity extends TileEntity implements SimpleComp
     @Callback(doc = "function():string -- Get display URL.")
     @Optional.Method(modid = "opencomputers")
     public Object[] getURL(Context context, Arguments args) {
-        return new Object[] { data.uri.toString() };
+        return new Object[] { data.getUri().toString() };
     }
 
     @Callback(doc = "function(url:string):nil -- Set display URL.")
     @Optional.Method(modid = "opencomputers")
     public Object[] setURL(Context context, Arguments args) {
         URI uri = URI.create(args.checkString(0));
-        if (!data.uri.equals(uri)) {
+        if (!data.getUri().equals(uri)) {
             data.tick = 0;
             data.tickMax = -1;
         }
-        data.uri = uri;
+        data.setUri(uri);
         data.uuid = DisplayData.NIL_UUID;
         markDirty();
         return new Object[] {};

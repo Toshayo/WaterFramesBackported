@@ -14,19 +14,23 @@ import net.toshayo.waterframes.network.packets.RequestDisplayInfoPacket;
 import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 import org.apache.commons.lang3.tuple.Triple;
 
+import javax.annotation.Nonnull;
+
 public class WaterFramesCommand extends CommandBase {
+    @Nonnull
     @Override
     public String getName() {
         return "waterframes";
     }
 
+    @Nonnull
     @Override
-    public String getUsage(ICommandSender sender) {
+    public String getUsage(@Nonnull ICommandSender sender) {
         return "/waterframes <url|width|height> <value> <x> <y> <z>";
     }
 
     @Override
-    public void execute(MinecraftServer minecraftServer, ICommandSender sender, String[] args) throws CommandException {
+    public void execute(@Nonnull MinecraftServer minecraftServer, @Nonnull ICommandSender sender, String[] args) throws CommandException {
         if (args.length != 5) {
             sender.sendMessage(new TextComponentString("Invalid arguments"));
             return;
@@ -37,22 +41,21 @@ public class WaterFramesCommand extends CommandBase {
         int y = (int) parseCoordinate(pos.y, args[3], true).getResult();
         int z = (int) parseCoordinate(pos.z, args[4], true).getResult();
         TileEntity tileEntity = sender.getEntityWorld().getTileEntity(new BlockPos(x, y, z));
-        if (!(tileEntity instanceof DisplayTileEntity)) {
+        if (!(tileEntity instanceof DisplayTileEntity tile)) {
             sender.sendMessage(new TextComponentString("Block is not a display!"));
             return;
         }
-        DisplayTileEntity tile = ((DisplayTileEntity) tileEntity);
 
         switch (args[0]) {
             case "status":
-                sender.sendMessage(new TextComponentString("URL: " + tile.data.uri.toString()));
+                sender.sendMessage(new TextComponentString("URL: " + tile.data.getUri().toString()));
                 break;
             case "url":
-                if (!tile.data.uri.toString().equals(args[1])) {
+                if (!tile.data.getUri().toString().equals(args[1])) {
                     tile.data.tick = 0;
                     tile.data.tickMax = -1;
                 }
-                tile.data.uri = WaterFramesMod.createURI(args[1]);
+                tile.data.setUri(WaterFramesMod.createURI(args[1]));
                 tile.data.uuid = sender instanceof EntityPlayer ? ((EntityPlayer) sender).getUniqueID() : DisplayData.NIL_UUID;
                 break;
             case "width":

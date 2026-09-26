@@ -15,8 +15,7 @@ public class LibrariesDowngradingTransformer implements IClassTransformer {
             return null;
         }
         if (transformedName.equals("org.watermedia.api.render.RenderAPI")) {
-            basicClass = visitClass(basicClass, classWriter -> new MemoryAllocVisitor(transformedName, classWriter));
-            return visitClass(basicClass, classWriter -> new LWJGLDowngradingVisitor(transformedName, classWriter));
+            return visitClass(basicClass, classWriter -> new RenderAPIVisitor(transformedName, classWriter));
         } else if (transformedName.equals("org.watermedia.api.image.ImageFetch")) {
             return visitClass(basicClass, classWriter -> new ImageFetchCachingDisablingVisitor(transformedName, classWriter), false);
         }

@@ -22,6 +22,8 @@ import net.toshayo.waterframes.network.PacketDispatcher;
 import net.toshayo.waterframes.network.packets.OpenGuiPacket;
 import net.toshayo.waterframes.tileentities.DisplayTileEntity;
 
+import javax.annotation.Nonnull;
+
 public abstract class DisplayBlock extends Block implements ITileEntityProvider {
     public static final PropertyDirection FACING = BlockHorizontal.FACING;
 
@@ -40,6 +42,7 @@ public abstract class DisplayBlock extends Block implements ITileEntityProvider 
         return new BlockStateContainer(this, FACING);
     }
 
+    @Nonnull
     @Override
     public IBlockState getStateFromMeta(int p_176203_1_) {
         EnumFacing lvt_2_1_ = EnumFacing.getFront(p_176203_1_);
@@ -56,27 +59,27 @@ public abstract class DisplayBlock extends Block implements ITileEntityProvider 
     }
 
     @Override
-    public boolean isOpaqueCube(IBlockState p_149662_1_) {
+    public boolean isOpaqueCube(@Nonnull IBlockState p_149662_1_) {
         return false;
     }
 
     @Override
-    public boolean isNormalCube(IBlockState p_isNormalCube_1_, IBlockAccess p_isNormalCube_2_, BlockPos p_isNormalCube_3_) {
+    public boolean isNormalCube(@Nonnull IBlockState p_isNormalCube_1_, @Nonnull IBlockAccess p_isNormalCube_2_, @Nonnull BlockPos p_isNormalCube_3_) {
         return false;
     }
 
     @Override
-    public boolean isNormalCube(IBlockState p_149721_1_) {
+    public boolean isNormalCube(@Nonnull IBlockState p_149721_1_) {
         return false;
     }
 
     @Override
-    public boolean isBlockNormalCube(IBlockState p_149637_1_) {
+    public boolean isBlockNormalCube(@Nonnull IBlockState p_149637_1_) {
         return false;
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState blockState, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, @Nonnull BlockPos pos, @Nonnull IBlockState blockState, @Nonnull EntityPlayer player, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (world.isRemote) {
             return true;
         } else if(!player.isSneaking() && WFConfig.canInteractBlock(player)) {
@@ -86,13 +89,14 @@ public abstract class DisplayBlock extends Block implements ITileEntityProvider 
         return false;
     }
 
+    @Nonnull
     @Override
-    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float p_getStateForPlacement_4_, float p_getStateForPlacement_5_, float p_getStateForPlacement_6_, int p_getStateForPlacement_7_, EntityLivingBase placer, EnumHand hand) {
+    public IBlockState getStateForPlacement(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float p_getStateForPlacement_4_, float p_getStateForPlacement_5_, float p_getStateForPlacement_6_, int p_getStateForPlacement_7_, EntityLivingBase placer, @Nonnull EnumHand hand) {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing());
     }
 
     @Override
-    public void onBlockPlacedBy(World world, BlockPos pos, IBlockState blockState, EntityLivingBase placer, ItemStack itemStack) {
+    public void onBlockPlacedBy(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull IBlockState blockState, @Nonnull EntityLivingBase placer, @Nonnull ItemStack itemStack) {
         super.onBlockPlacedBy(world, pos, blockState, placer, itemStack);
         world.setBlockState(pos, blockState.withProperty(FACING, placer.getHorizontalFacing()), 2);
 
@@ -104,8 +108,12 @@ public abstract class DisplayBlock extends Block implements ITileEntityProvider 
     }
 
     @Override
-    public int getLightValue(IBlockState p_getLightValue_1_, IBlockAccess p_getLightValue_2_, BlockPos p_getLightValue_3_) {
-        return super.getLightValue(p_getLightValue_1_, p_getLightValue_2_, p_getLightValue_3_);
+    public int getLightValue(@Nonnull IBlockState p_getLightValue_1_, IBlockAccess world, @Nonnull BlockPos pos) {
+        TileEntity tile = world.getTileEntity(pos);
+        if(tile instanceof DisplayTileEntity) {
+            return ((DisplayTileEntity) tile).getLightLevel();
+        }
+        return 0;
     }
 
     public boolean canHideModel() {

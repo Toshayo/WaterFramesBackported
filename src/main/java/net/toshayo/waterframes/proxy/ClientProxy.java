@@ -45,7 +45,9 @@ public class ClientProxy extends CommonProxy {
         }
         WaterMedia.prepare(ILoader.DEFAULT).start();
         MinecraftForge.EVENT_BUS.register(this);
-        WaterMediaYT.start();
+        try {
+            WaterMediaYT.start();
+        } catch (Exception ignore) { }
     }
 
     @Override

@@ -202,6 +202,9 @@ public class TextureDisplay {
                 y += (int) (EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetY() * -tile.data.audioOffset);
                 z += (int) (EnumFacing.getFront(this.tile.getBlockMetadata()).getFrontOffsetZ() * -tile.data.audioOffset);
                 int volume = limitVolume(x, y, z, this.tile.data.volume, this.tile.data.minVolumeDistance, this.tile.data.maxVolumeDistance);
+                if(!WaterFramesMod.proxy.isSameWorldAsUser(this.tile.getWorld())) {
+                    volume = 0;
+                }
 
                 if(!seeking() && seekTime != 0) {
                     seekTo(seekTime);

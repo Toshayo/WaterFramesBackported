@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -29,6 +30,8 @@ import org.watermedia.WaterMedia;
 import org.watermedia.loaders.ILoader;
 import org.watermedia.videolan4j.tools.Version;
 import org.watermedia.youtube.WaterMediaYT;
+
+import java.util.function.Predicate;
 
 public class ClientProxy extends CommonProxy {
     @Override
@@ -157,5 +160,20 @@ public class ClientProxy extends CommonProxy {
         if (tile.display != null) {
             tile.display.forceSeek();
         }
+    }
+
+    private Predicate<Integer> sameWorldChecker = null;
+
+    @Override
+    public boolean isSameWorldAsUser(World world) {
+        if(sameWorldChecker == null) {
+            try {
+                sameWorldChecker = i -> i == de.johni0702.minecraft.view.impl.ClientViewAPIImpl.INSTANCE.getViewManagerImpl().getMainView().getDimension();
+                WaterFramesMod.LOGGER.info("Better Portals Refitted found, using special world comparator");
+            } catch (Exception e) {
+                sameWorldChecker = i -> i == Minecraft.getMinecraft().world.provider.getDimension();
+            }
+        }
+        return sameWorldChecker.test(world.provider.getDimension());
     }
 }

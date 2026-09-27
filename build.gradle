@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         maven { url = "https://files.minecraftforge.net/maven" }
         maven { url = 'https://maven.minecraftforge.net/' }
     }
@@ -94,6 +93,8 @@ dependencies {
     }
 
     compileOnly "li.cil.oc:OpenComputers:MC1.12.2-1.7.+:api"
+
+    compileOnly project(':stubs')
 
     implementation "maven.modrinth:watermedia:${watermedia_version}"
     implementation "maven.modrinth:watermedia-yt-plugin:${watermedia_yt_plugin_version}"

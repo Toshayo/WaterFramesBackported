@@ -6,6 +6,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -227,5 +228,9 @@ public class CommonProxy {
         if(event.phase == TickEvent.Phase.END) {
             DisplayTileEntity.clearLagTickTime();
         }
+    }
+
+    public boolean isSameWorldAsUser(World world) {
+        return true;
     }
 }

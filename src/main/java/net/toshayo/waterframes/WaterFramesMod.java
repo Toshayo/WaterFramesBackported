@@ -26,7 +26,7 @@ import java.util.List;
 public class WaterFramesMod {
     public static final String MOD_ID = "waterframes";
     public static final String NAME = "WaterFramesBackported";
-    public static final String VERSION = "1.2.4";
+    public static final String VERSION = "1.3.6";
 
     public static final Logger LOGGER = LogManager.getLogger(NAME);
 

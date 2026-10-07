@@ -11,6 +11,7 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -169,10 +170,10 @@ public class ClientProxy extends CommonProxy {
     @Override
     public boolean isSameWorldAsUser(World world) {
         if(sameWorldChecker == null) {
-            try {
+            if(Loader.isModLoaded("betterportals")) {
                 sameWorldChecker = i -> i == de.johni0702.minecraft.view.impl.ClientViewAPIImpl.INSTANCE.getViewManagerImpl().getMainView().getDimension();
                 WaterFramesMod.LOGGER.info("Better Portals Refitted found, using special world comparator");
-            } catch (Exception e) {
+            } else {
                 sameWorldChecker = i -> i == Minecraft.getMinecraft().world.provider.getDimension();
             }
         }

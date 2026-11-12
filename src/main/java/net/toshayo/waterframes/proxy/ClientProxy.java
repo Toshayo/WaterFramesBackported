@@ -45,7 +45,9 @@ public class ClientProxy extends CommonProxy {
         }
         WaterMedia.prepare(ILoader.DEFAULT).start();
 
-        WaterMediaYT.start();
+        try {
+            WaterMediaYT.start();
+        } catch (Exception ignore) { }
     }
 
     @Override

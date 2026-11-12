@@ -2,6 +2,7 @@ tile.frame.name=Rama
 tile.projector.name=Projektor
 tile.tv.name=Telewizor
 tile.big_tv.name=Duży telewizor
+tile.tv_box.name=Telewizor CRT
 item.remote.name=Pilot
 waterframes.gui.label.url=URL
 waterframes.gui.textBox.url=https://i.imgur.com/1yCDs5C.mp4

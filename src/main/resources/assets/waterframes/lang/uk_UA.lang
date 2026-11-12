@@ -2,6 +2,7 @@ tile.frame.name=Рама
 tile.projector.name=Проектор
 tile.tv.name=Телевізор
 tile.big_tv.name=Великий телевізор
+tile.tv_box.name=Телевізор коробка
 item.remote.name=Пульт
 waterframes.gui.label.url=URL-адреса
 waterframes.gui.textBox.url=https://i.imgur.com/1yCDs5C.mp4

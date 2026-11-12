@@ -4,10 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;
-import net.toshayo.waterframes.tileentities.BigTVTileEntity;
-import net.toshayo.waterframes.tileentities.DisplayTileEntity;
-import net.toshayo.waterframes.tileentities.FrameTileEntity;
-import net.toshayo.waterframes.tileentities.TVTileEntity;
+import net.toshayo.waterframes.tileentities.*;
 import org.lwjgl.opengl.GL11;
 
 public class DisplayItemRenderer implements IItemRenderer {
@@ -58,13 +55,17 @@ public class DisplayItemRenderer implements IItemRenderer {
                     GL11.glTranslatef(0, 0.3F, 0);
                     GL11.glRotatef(90, 1, 0, 0);
                 }
+                if(dummy instanceof TVBoxTileEntity) {
+                    GL11.glTranslatef(0.2F, -0.2F, 0);
+                }
                 GL11.glTranslatef(-0.2F, -0.5F, 0);
                 break;
             default:
                 break;
         }
 
-        TileEntityRendererDispatcher.instance.getSpecialRenderer(dummy).renderTileEntityAt(dummy, 0.0D, 0.0D, 0.0D, 0.0F); // Render your block's model
+        TileEntityRendererDispatcher.instance.getSpecialRenderer(dummy)
+                .renderTileEntityAt(dummy, 0.0D, 0.0D, 0.0D, 0.0F);
 
         GL11.glPopMatrix();
     }

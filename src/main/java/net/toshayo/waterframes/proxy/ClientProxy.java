@@ -16,10 +16,7 @@ import net.toshayo.waterframes.WaterFramesMod;
 import net.toshayo.waterframes.client.DisplayControl;
 import net.toshayo.waterframes.client.render.item.DisplayItemRenderer;
 import net.toshayo.waterframes.client.render.item.RemoteControlItemRenderer;
-import net.toshayo.waterframes.client.render.tileentity.BigTVRenderer;
-import net.toshayo.waterframes.client.render.tileentity.FrameRenderer;
-import net.toshayo.waterframes.client.render.tileentity.ProjectorRenderer;
-import net.toshayo.waterframes.client.render.tileentity.TVRenderer;
+import net.toshayo.waterframes.client.render.tileentity.*;
 import net.toshayo.waterframes.network.PacketDispatcher;
 import net.toshayo.waterframes.network.packets.*;
 import net.toshayo.waterframes.tileentities.*;
@@ -64,9 +61,11 @@ public class ClientProxy extends CommonProxy {
         ClientRegistry.bindTileEntitySpecialRenderer(BigTVTileEntity.class, new BigTVRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(TVTileEntity.class, new TVRenderer());
         ClientRegistry.bindTileEntitySpecialRenderer(ProjectorTileEntity.class, new ProjectorRenderer());
+        ClientRegistry.bindTileEntitySpecialRenderer(TVBoxTileEntity.class, new DisplayRenderer());
 
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(WaterFramesMod.BIG_TV), new DisplayItemRenderer(BigTVTileEntity.class));
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(WaterFramesMod.TV), new DisplayItemRenderer(TVTileEntity.class));
+        //MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(WaterFramesMod.TV_BOX), new DisplayItemRenderer(TVBoxTileEntity.class));
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(WaterFramesMod.PROJECTOR), new DisplayItemRenderer(ProjectorTileEntity.class));
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(WaterFramesMod.FRAME), new DisplayItemRenderer(FrameTileEntity.class));
         MinecraftForgeClient.registerItemRenderer(WaterFramesMod.REMOTE, new RemoteControlItemRenderer());
@@ -120,10 +119,9 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void handlePacket(RequestDisplayInfoPacket message, MessageContext ctx) {
         TileEntity tile = Minecraft.getMinecraft().thePlayer.worldObj.getTileEntity(message.posX, message.posY, message.posZ);
-        if (!(tile instanceof DisplayTileEntity)) {
+        if (!(tile instanceof DisplayTileEntity displayTile)) {
             return;
         }
-        DisplayTileEntity displayTile = (DisplayTileEntity) tile;
         PacketDispatcher.wrapper.sendToServer(new RequestDisplayInfoPacket(
                 tile.getWorldObj().provider.dimensionId,
                 message.posX, message.posY, message.posZ,

@@ -2,6 +2,7 @@ tile.frame.name=视频框架
 tile.projector.name=投影仪
 tile.tv.name=电视
 tile.big_tv.name=大电视
+tile.tv_box.name=盒式电视
 item.remote.name=遥控器
 waterframes.gui.label.url=链接
 waterframes.gui.textBox.url=https://i.imgur.com/1yCDs5C.mp4

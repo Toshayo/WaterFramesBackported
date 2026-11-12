@@ -2,6 +2,7 @@ tile.frame.name=壁面モニター
 tile.projector.name=プロジェクター
 tile.tv.name=テレビ
 tile.big_tv.name=大型テレビ
+tile.tv_box.name=箱型テレビ
 item.remote.name=リモコン
 waterframes.gui.label.url=URL
 waterframes.gui.textBox.url=https://i.imgur.com/1yCDs5C.mp4

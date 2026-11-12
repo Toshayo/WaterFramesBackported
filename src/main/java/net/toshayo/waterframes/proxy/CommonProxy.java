@@ -17,11 +17,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.toshayo.waterframes.DisplayData;
 import net.toshayo.waterframes.WFConfig;
 import net.toshayo.waterframes.WaterFramesMod;
-import net.toshayo.waterframes.blocks.BigTVBlock;
-import net.toshayo.waterframes.blocks.FrameBlock;
-import net.toshayo.waterframes.blocks.ProjectorBlock;
-import net.toshayo.waterframes.blocks.TVBlock;
+import net.toshayo.waterframes.blocks.*;
 import net.toshayo.waterframes.client.GuiHandler;
+import net.toshayo.waterframes.tileentities.TVBoxTileEntity;
 import net.toshayo.waterframes.items.RemoteControlItem;
 import net.toshayo.waterframes.network.PacketDispatcher;
 import net.toshayo.waterframes.network.packets.*;
@@ -36,6 +34,7 @@ public class CommonProxy {
         WaterFramesMod.TV = new TVBlock();
         WaterFramesMod.BIG_TV = new BigTVBlock();
         WaterFramesMod.PROJECTOR = new ProjectorBlock();
+        WaterFramesMod.TV_BOX = new TVBoxBlock();
 
         WaterFramesMod.REMOTE = new RemoteControlItem();
 
@@ -43,6 +42,7 @@ public class CommonProxy {
         GameRegistry.registerBlock(WaterFramesMod.TV, WaterFramesMod.TV.getUnlocalizedName());
         GameRegistry.registerBlock(WaterFramesMod.BIG_TV, WaterFramesMod.BIG_TV.getUnlocalizedName());
         GameRegistry.registerBlock(WaterFramesMod.PROJECTOR, WaterFramesMod.PROJECTOR.getUnlocalizedName());
+        GameRegistry.registerBlock(WaterFramesMod.TV_BOX, WaterFramesMod.TV_BOX.getUnlocalizedName());
 
         GameRegistry.registerItem(WaterFramesMod.REMOTE, WaterFramesMod.REMOTE.getUnlocalizedName());
 
@@ -50,6 +50,7 @@ public class CommonProxy {
         GameRegistry.registerTileEntity(TVTileEntity.class, WaterFramesMod.MOD_ID + ":tv");
         GameRegistry.registerTileEntity(BigTVTileEntity.class, WaterFramesMod.MOD_ID + ":big_tv");
         GameRegistry.registerTileEntity(ProjectorTileEntity.class, WaterFramesMod.MOD_ID + ":projector");
+        GameRegistry.registerTileEntity(TVBoxTileEntity.class, WaterFramesMod.MOD_ID + "tv_box");
 
         PacketDispatcher.registerPackets();
         NetworkRegistry.INSTANCE.registerGuiHandler(WaterFramesMod.INSTANCE, new GuiHandler());
@@ -101,6 +102,7 @@ public class CommonProxy {
                 'i', Items.iron_ingot,
                 'G', Blocks.stained_glass,
                 'R', WaterFramesMod.REMOTE);
+        GameRegistry.addShapelessRecipe(new ItemStack(WaterFramesMod.TV_BOX), Blocks.noteblock, WaterFramesMod.FRAME);
     }
 
     public float deltaFrames() {
